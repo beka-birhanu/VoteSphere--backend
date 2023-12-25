@@ -38,7 +38,7 @@ CollaboraTask is a collaborative task management application that allows users t
   - Modular backend structure with separate modules for authentication, authorization, group management, and task management.
   - JWT token-based authentication.
 
-- **Frontend with BULMA/Tailwind/Bootstrap and Fetch API:**
+- **Frontend with Tailwind and Fetch API:**
   - Stylish frontend using Tailwind.
   - TypeScript for organized frontend code.
   - Fetch API for communication with the backend.
