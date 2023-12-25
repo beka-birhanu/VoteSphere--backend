@@ -10,8 +10,8 @@ CollaboraTask is a collaborative task management application that allows users t
 2. **[bereket kelay](https://github.com/member1username)**
    - ID: UGR/9587/14
 
-3. **[ephrem mamo](https://github.com/member2username)**
-   - GitHub ID: member2username
+3. **[ephrem mamo tora](https://github.com/Efamamo)**
+   - ID: UGR/1504/14
    
 4. **[yohannes alemayehu abdi](https://github.com/yohannesalex)**
    - ID: UGR/2497/14
