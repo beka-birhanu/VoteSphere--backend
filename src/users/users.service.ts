@@ -1,23 +1,38 @@
 import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dtos/createUserDto.dto';
+import { promises } from 'dns';
 
-export type User = any;
+export type User = {
+  userName: string;
+  email: string;
+  password: string;
+  role: string[];
+};
 
 @Injectable()
 export class UsersService {
-  private readonly users = [
+  private users: User[] = [
     {
-      userId: 1,
-      username: 'john',
-      password: 'changeme',
+      userName: 'beka',
+      email: 'beka@gmail.com',
+      password: '$2b$10$uzlJHEFlfsB2TKK0OWTLXu8IXHXs12SAeyeu3heHB.98ZrAQRf/LC',
+      role: ['Admin', 'User'],
     },
     {
-      userId: 2,
-      username: 'maria',
-      password: 'guess',
+      userName: 'beka-birhanu',
+      email: 'bekabirhanu@gmail.com',
+      password: '$2b$10$uzlJHEFlfsB2TKK0OWTLXu8IXHXs12SAeyeu3heHB.98ZrAQRf/LC',
+      role: ['user'],
     },
   ];
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find(user => user.username === username);
+  async findOne(userName: string): Promise<User | undefined> {
+    return this.users.find((user) => user.userName === userName);
+  }
+  async createUser(createUserDto: CreateUserDto) {}
+
+  async getUserRole(userName: string): Promise<string[] | undefined> {
+    const user = await this.findOne(userName);
+    return user.role;
   }
 }
