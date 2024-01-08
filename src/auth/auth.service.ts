@@ -61,11 +61,14 @@ export class AuthService {
    */
   async signIn(userName: string): Promise<{
     userName: string;
+    role: string;
     access_token: string;
     refresh_token: string;
   }> {
-    // Find user by username and extract email for payload
-    const email = (await this.usersService.findOne(userName)).email;
+    // Find user by username and extract email for payload and role
+    const user = await this.usersService.findOne(userName);
+    const role = user.role;
+    const email = user.email;
     const payload = { email: email, userName: userName };
 
     // Sign and return both access and refresh tokens
@@ -74,7 +77,7 @@ export class AuthService {
       expiresIn: '3w',
     });
 
-    return { userName, access_token, refresh_token };
+    return { userName, role, access_token, refresh_token };
   }
 
   /**
