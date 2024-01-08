@@ -22,10 +22,10 @@ export class RolesGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Get the roles assigned to the route handler
-    const roles = this.reflector.get(Roles, context.getHandler());
+    const rolesRequired = this.reflector.get(Roles, context.getHandler());
 
     // If no roles are specified, access is granted
-    if (!roles) {
+    if (!rolesRequired) {
       return true;
     }
 
@@ -53,7 +53,7 @@ export class RolesGuard implements CanActivate {
     const userRoles = await this.userService.getUserRole(username);
 
     // Check if user roles match the required roles
-    return this.matchRoles(userRoles, roles[0]);
+    return this.matchRoles(rolesRequired, userRoles);
   }
 
   // Extract token from headers
@@ -76,7 +76,7 @@ export class RolesGuard implements CanActivate {
   }
 
   // Check if user roles match the required roles
-  private matchRoles(roles: string[], requiredRole: string): boolean {
-    return roles.includes(requiredRole);
+  private matchRoles(rolesRequired: string[], role: string): boolean {
+    return rolesRequired.includes(role);
   }
 }

@@ -6,7 +6,7 @@ export type User = {
   userName: string;
   email: string;
   password: string;
-  role: string[];
+  role: string;
 };
 
 @Injectable()
@@ -16,13 +16,13 @@ export class UsersService {
       userName: 'beka',
       email: 'beka@gmail.com',
       password: '$2b$10$uzlJHEFlfsB2TKK0OWTLXu8IXHXs12SAeyeu3heHB.98ZrAQRf/LC',
-      role: ['Admin', 'User'],
+      role: 'Admin',
     },
     {
       userName: 'beka-birhanu',
       email: 'bekabirhanu@gmail.com',
       password: '$2b$10$uzlJHEFlfsB2TKK0OWTLXu8IXHXs12SAeyeu3heHB.98ZrAQRf/LC',
-      role: ['user'],
+      role: 'user',
     },
   ];
 
@@ -31,7 +31,7 @@ export class UsersService {
   }
   async createUser(createUserDto: CreateUserDto) {}
 
-  async getUserRole(userName: string): Promise<string[] | undefined> {
+  async getUserRole(userName: string): Promise<string | undefined> {
     const user = await this.findOne(userName);
     return user.role;
   }
