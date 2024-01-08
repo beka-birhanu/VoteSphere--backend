@@ -60,8 +60,9 @@ export class AuthController {
   })
   @Post('signout')
   signOut(@Body() signOutDto: SignOutUserDto) {
-    this.authService.revokeToken(signOutDto);
-    return STATUS_CODES.successful;
+    return this.authService.revokeToken(signOutDto)
+      ? STATUS_CODES.successful
+      : STATUS_CODES.error;
   }
 
   /**

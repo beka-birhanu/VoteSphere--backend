@@ -101,13 +101,15 @@ export class AuthService {
    * @param username - User's username
    * @returns { void} - Assumes All JWT token  revocking is successful
    */
-  async revokeToken(signOutDto: SignOutUserDto): Promise<void> {
+  async revokeToken(signOutDto: SignOutUserDto): Promise<boolean> {
     // Find user by username and extract email for payload
     const { username, token } = signOutDto;
     const isValid = this.verifyToken(token);
     if (isValid) {
       this.usersService.addBlackListToken(username, token);
+      return true;
     }
+    return false;
   }
 
   /**

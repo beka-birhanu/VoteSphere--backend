@@ -17,7 +17,7 @@ import { RolesGuard } from './guards/role.guard';
       // Configure and register the JwtModule for JWT token handling
       global: true,
       secret: `${process.env.JWT_SECRET}`,
-      signOptions: { expiresIn: '300s' },
+      signOptions: { expiresIn: '1020s' },
     }),
   ],
   providers: [

@@ -35,7 +35,8 @@ export class JwtGuard extends AuthGuard('jwt') {
     const username = decodedToken.username;
 
     const blackList = await this.usersService.getBlacklist(username);
-    if (blackList.includes(token)) {
+
+    if (blackList && blackList.includes(token)) {
       return false;
     }
 
