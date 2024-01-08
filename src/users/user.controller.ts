@@ -4,8 +4,8 @@ import { JwtGuard } from 'src/auth/guards/jwtAuth.guard';
 @Controller('users')
 export class UserController {
   @UseGuards(JwtGuard)
-  @Get(':userName/posts')
-  getPost(@Param('userName') userName: string) {
-    return { message: `Fetching posts for user: ${userName}` };
+  @Get(':username/posts')
+  getPost(@Param('username') username: string) {
+    return { message: `Fetching posts for user: ${username}` };
   }
 }

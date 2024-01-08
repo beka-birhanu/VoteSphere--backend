@@ -26,7 +26,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
    */
   async validate(payload: any) {
     // Ensure the payload is present and contains required fields
-    if (!payload || !payload.email || !payload.userName) {
+    if (!payload || !payload.email || !payload.username) {
       throw new UnauthorizedException();
     }
 

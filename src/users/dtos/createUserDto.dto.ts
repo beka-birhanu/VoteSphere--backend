@@ -20,7 +20,7 @@ export class CreateUserDto {
       'Username must contain only letters, numbers, periods, and underscores',
   })
   @Length(3, 20, { message: 'Username must be between 3 and 20 characters' })
-  userName: string;
+  username: string;
 
   @ApiProperty({
     description: 'Password of the user',
@@ -28,4 +28,7 @@ export class CreateUserDto {
   })
   @IsNotEmpty({ message: 'Password cannot be empty' })
   password: string;
+
+  @IsNotEmpty({ message: 'role cannot be empty' })
+  role: string;
 }

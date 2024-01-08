@@ -3,36 +3,53 @@ import { CreateUserDto } from './dtos/createUserDto.dto';
 import { promises } from 'dns';
 
 export type User = {
-  userName: string;
+  username: string;
   email: string;
   password: string;
   role: string;
+  blackList: any[];
 };
 
 @Injectable()
 export class UsersService {
   private users: User[] = [
     {
-      userName: 'beka',
+      username: 'beka',
       email: 'beka@gmail.com',
       password: '$2b$10$uzlJHEFlfsB2TKK0OWTLXu8IXHXs12SAeyeu3heHB.98ZrAQRf/LC',
       role: 'Admin',
+      blackList: [],
     },
     {
-      userName: 'beka-birhanu',
+      username: 'beka-birhanu',
       email: 'bekabirhanu@gmail.com',
       password: '$2b$10$uzlJHEFlfsB2TKK0OWTLXu8IXHXs12SAeyeu3heHB.98ZrAQRf/LC',
       role: 'user',
+      blackList: [],
     },
   ];
 
-  async findOne(userName: string): Promise<User | undefined> {
-    return this.users.find((user) => user.userName === userName);
+  async findOne(username: string): Promise<User | undefined> {
+    return this.users.find(
+      (user) => user.username === username || user.email === username,
+    );
   }
-  async createUser(createUserDto: CreateUserDto) {}
+  async createUser(createUserDto: CreateUserDto) {
+    const newUser: User = { ...createUserDto, blackList: [] };
 
-  async getUserRole(userName: string): Promise<string | undefined> {
-    const user = await this.findOne(userName);
+    this.users.push(newUser);
+  }
+
+  async getUserRole(username: string): Promise<string | undefined> {
+    const user = await this.findOne(username);
     return user.role;
+  }
+  async addBlackListToken(username: string, token: string) {
+    const user = await this.findOne(username);
+    user.blackList.push(token);
+  }
+  async getBlacklist(username: string): Promise<string[]> {
+    const user = await this.findOne(username);
+    return user.blackList;
   }
 }

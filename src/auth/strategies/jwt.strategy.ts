@@ -23,11 +23,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    */
   async validate(payload: any) {
     // Ensure the payload is present and contains required fields
-    if (!payload || !payload.email || !payload.userName) {
+    if (!payload || !payload.email || !payload.username) {
       throw new UnauthorizedException();
     }
 
     // Return user information extracted from the JWT payload
-    return { email: payload.email, userName: payload.userName };
+    return { email: payload.email, username: payload.username };
   }
 }

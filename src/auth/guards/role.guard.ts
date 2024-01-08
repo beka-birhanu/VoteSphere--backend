@@ -47,7 +47,7 @@ export class RolesGuard implements CanActivate {
     }
 
     // Extract the username from the decoded token
-    const username = decodedToken.userName;
+    const username = decodedToken.username;
 
     // Use await to get the actual user roles
     const userRoles = await this.userService.getUserRole(username);
@@ -67,7 +67,7 @@ export class RolesGuard implements CanActivate {
   }
 
   // Decode the token using the JWT service
-  private decodeToken(token: string): { userName: string } | null {
+  private decodeToken(token: string): { username: string } | null {
     try {
       return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
     } catch (error) {

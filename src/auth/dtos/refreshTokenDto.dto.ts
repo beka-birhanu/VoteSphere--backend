@@ -7,5 +7,5 @@ export class RefreshTokenDto {
     example: 'beka_birhanu',
   })
   @IsNotEmpty({ message: 'Username cannot be empty' })
-  userName: string;
+  username: string;
 }

@@ -7,7 +7,7 @@ export class SignInUserDto {
     example: 'beka_birhanu',
   })
   @IsNotEmpty({ message: 'Username cannot be empty' })
-  userName: string;
+  username: string;
 
   @ApiProperty({
     description: 'Password for signing in',

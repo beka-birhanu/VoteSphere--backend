@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
 import * as zxcvbn from 'zxcvbn';
 import { ApiTags } from '@nestjs/swagger';
+import { SignOutUserDto } from './dtos/signoutUserDto.dto';
 
 @ApiTags('auth')
 @Injectable()
@@ -31,7 +32,7 @@ export class AuthService {
     // Check if email or username already exists
     const isEmailUsed = await this.usersService.findOne(createUserDto.email);
     const isUserNameUsed = await this.usersService.findOne(
-      createUserDto.userName,
+      createUserDto.username,
     );
 
     // Throw exceptions if the email or username is already in use
@@ -50,49 +51,78 @@ export class AuthService {
 
     // Create the user and sign them in, returning tokens
     await this.usersService.createUser(createUserDto);
-    return await this.signIn(createUserDto.userName);
+    return await this.signIn(createUserDto.username);
   }
 
   /**
    * Sign in a user.
-   * @param userName - User's username
-   * @returns { userName, access_token, refresh_token } - User information and tokens if sign-in is successful
+   * @param username - User's username
+   * @returns { username, access_token, refresh_token } - User information and tokens if sign-in is successful
    * @throws UnauthorizedException if the username is invalid
    */
-  async signIn(userName: string): Promise<{
-    userName: string;
+  async signIn(username: string): Promise<{
+    username: string;
     role: string;
     access_token: string;
     refresh_token: string;
   }> {
     // Find user by username and extract email for payload and role
-    const user = await this.usersService.findOne(userName);
+    const user = await this.usersService.findOne(username);
     const role = user.role;
     const email = user.email;
-    const payload = { email: email, userName: userName };
+    const payload = { email: email, username: username };
 
     // Sign and return both access and refresh tokens
     const access_token = await this.jwtService.signAsync(payload);
     const refresh_token = await this.jwtService.signAsync(payload, {
-      expiresIn: '3w',
+      expiresIn: '3m',
     });
 
-    return { userName, role, access_token, refresh_token };
+    return { username, role, access_token, refresh_token };
+  }
+
+  /**
+   * Refresh a user's JWT token.
+   * @param username - User's username
+   * @returns { access_token } - New JWT token if refresh is successful
+   */
+  async refreshToken(username: string): Promise<{ access_token: string }> {
+    // Find user by username and extract email for payload
+    const email = (await this.usersService.findOne(username)).email;
+    const payload = { email: email, username: username };
+
+    // Sign and return a new access token for refresh
+    const access_token = await this.jwtService.signAsync(payload);
+    return { access_token };
+  }
+
+  /**
+   * Revokes a user's JWT token.
+   * @param username - User's username
+   * @returns { void} - Assumes All JWT token  revocking is successful
+   */
+  async revokeToken(signOutDto: SignOutUserDto): Promise<void> {
+    // Find user by username and extract email for payload
+    const { username, token } = signOutDto;
+    const isValid = this.verifyToken(token);
+    if (isValid) {
+      this.usersService.addBlackListToken(username, token);
+    }
   }
 
   /**
    * Validate a user's password.
-   * @param userName - User's username
+   * @param username - User's username
    * @param plainTextPassword - User's plain text password
    * @returns {number} - 0 if the password is valid, 1 if the username is invalid, 2 if the password is invalid, 3 if there is an error
    */
   async validatePassword(
-    userName: string,
+    username: string,
     plainTextPassword: string,
   ): Promise<number> {
     try {
       // Find user by username
-      const user = await this.usersService.findOne(userName);
+      const user = await this.usersService.findOne(username);
 
       // If user not found, return invalid username
       if (!user) {
@@ -112,18 +142,12 @@ export class AuthService {
     }
   }
 
-  /**
-   * Refresh a user's JWT token.
-   * @param userName - User's username
-   * @returns { access_token } - New JWT token if refresh is successful
-   */
-  async refreshToken(userName: string): Promise<{ access_token: string }> {
-    // Find user by username and extract email for payload
-    const email = (await this.usersService.findOne(userName)).email;
-    const payload = { email: email, userName: userName };
-
-    // Sign and return a new access token for refresh
-    const access_token = await this.jwtService.signAsync(payload);
-    return { access_token };
+  private async verifyToken(token: string): Promise<boolean> {
+    try {
+      this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
