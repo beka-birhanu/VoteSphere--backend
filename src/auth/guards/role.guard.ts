@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ConsoleLogger,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Roles } from '../decorators/roles.decorator';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 @ApiBearerAuth()
@@ -18,6 +14,7 @@ export class RolesGuard implements CanActivate {
     private reflector: Reflector,
     private jwtService: JwtService,
     private userService: UsersService,
+    private authService: AuthService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -39,7 +36,7 @@ export class RolesGuard implements CanActivate {
     }
 
     // Decode the token to extract username
-    const decodedToken = this.decodeToken(token);
+    const decodedToken = this.authService.decodeToken(token);
 
     // If token verification fails, access is denied
     if (!decodedToken) {
@@ -64,15 +61,6 @@ export class RolesGuard implements CanActivate {
       return authorizationHeader.split(' ')[1];
     }
     return null;
-  }
-
-  // Decode the token using the JWT service
-  private decodeToken(token: string): { username: string } | null {
-    try {
-      return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
-    } catch (error) {
-      return null;
-    }
   }
 
   // Check if user roles match the required roles

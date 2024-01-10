@@ -152,4 +152,13 @@ export class AuthService {
       return false;
     }
   }
+
+  // Decode the token using the JWT service
+  decodeToken(token: string): { username: string } | null {
+    try {
+      return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+    } catch (error) {
+      return null;
+    }
+  }
 }
