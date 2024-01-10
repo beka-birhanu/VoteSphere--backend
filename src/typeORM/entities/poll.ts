@@ -1,0 +1,31 @@
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { PollOption } from './polloption';
+import { Group } from './group';
+
+@Entity({ name: 'polls' })
+export class Poll {
+  @PrimaryGeneratedColumn({ name: 'poll_id' })
+  id: number;
+
+  @Column({ nullable: false })
+  question: string;
+
+  @Column({ default: true })
+  isOpen: boolean;
+
+  @OneToMany(() => PollOption, (pollOption) => pollOption.poll, {
+    cascade: true,
+  })
+  options: PollOption[];
+
+  @ManyToOne(() => Group, (group) => group.polls, { nullable: false })
+  @JoinColumn({ name: 'group_id' })
+  group: Group;
+}

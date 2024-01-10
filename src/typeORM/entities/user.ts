@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Group } from './group';
 
 @Entity({ name: 'users' })
 export class User {
@@ -16,4 +17,8 @@ export class User {
 
   @Column({ name: 'token_blacklist', type: 'simple-array', nullable: true })
   tokenBlackList: string[];
+
+  @ManyToOne(() => Group, (group) => group.users, { nullable: true })
+  @JoinColumn({ name: 'group_id' })
+  group: Group;
 }
