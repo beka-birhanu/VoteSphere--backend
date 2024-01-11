@@ -18,7 +18,10 @@ export class User {
   @Column({ name: 'token_blacklist', type: 'simple-array', nullable: true })
   tokenBlackList: string[];
 
-  @ManyToOne(() => Group, (group) => group.users, { nullable: true })
+  @ManyToOne(() => Group, (group) => group.users, {
+    nullable: true,
+    eager: true,
+  })
   @JoinColumn({ name: 'group_id' })
   group: Group;
 }
