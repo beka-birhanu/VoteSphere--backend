@@ -75,7 +75,7 @@ export class AuthService {
     // Sign and return both access and refresh tokens
     const access_token = await this.jwtService.signAsync(payload);
     const refresh_token = await this.jwtService.signAsync(payload, {
-      expiresIn: '3m',
+      expiresIn: '30d',
     });
 
     return { username, role, access_token, refresh_token };
