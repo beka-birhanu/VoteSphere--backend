@@ -37,6 +37,8 @@ export class GroupService {
     group.admin = adminUser;
 
     const newGroup = await this.groupRepository.save(group);
+    adminUser.group = newGroup;
+    this.usersService.updateUser(adminUser);
     if (newGroup) {
       const groupDto = {
         groupId: group.id,
@@ -48,6 +50,35 @@ export class GroupService {
   }
 
   async findByAdminUsername(adminUsername: string): Promise<Group | undefined> {
-    return await this.groupRepository.findOne({ where: {} });
+    try {
+      const group = await this.groupRepository.findOne({
+        where: { admin: { username: adminUsername } },
+      });
+
+      if (!group) {
+        return null;
+      }
+
+      return group;
+    } catch (error) {
+      return null;
+    }
+  }
+  async findById(groupId: number) {
+    try {
+      const group = await this.groupRepository.findOne({
+        where: { id: groupId },
+      });
+      if (!group) {
+        return null;
+      }
+
+      return group;
+    } catch (error) {
+      return null;
+    }
+  }
+  async findMemders(groupId: number) {
+    return await this.usersService.getUsersByGroupId(groupId);
   }
 }
