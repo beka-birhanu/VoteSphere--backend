@@ -9,6 +9,8 @@ import { User } from './typeORM/entities/user';
 import { Group } from './typeORM/entities/group';
 import { Poll } from './typeORM/entities/poll';
 import { PollOption } from './typeORM/entities/polloption';
+import { MembershipModule } from './membership/membership.module';
+import { PollModule } from './poll/poll.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { PollOption } from './typeORM/entities/polloption';
       entities: [User, Group, PollOption, Poll],
       synchronize: true,
     }),
+    MembershipModule,
+    PollModule,
   ],
   controllers: [AppController],
   providers: [AppService],
