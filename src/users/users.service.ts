@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/typeORM/entities/user';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 // private users: User[] = [
 //   {
@@ -27,6 +28,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async findOne(usernameOrEmail: string): Promise<User | undefined> {
@@ -69,5 +71,26 @@ export class UsersService {
   async getBlacklist(username: string): Promise<string[]> {
     const user = await this.findOne(username);
     return user ? user.tokenBlackList : [];
+  }
+
+  async updateUser(user: User) {
+    return await this.userRepository.save(user);
+  }
+
+  async getUsersByGroupId(
+    groupId: number,
+  ): Promise<{ username: string; email: string }[]> {
+    const users = await this.userRepository.find({
+      where: { group: { id: groupId } },
+      select: ['username', 'email'],
+    });
+
+    // Transform the result if needed
+    const strippedUsers = users.map((user) => ({
+      username: user.username,
+      email: user.email,
+    }));
+
+    return strippedUsers;
   }
 }
