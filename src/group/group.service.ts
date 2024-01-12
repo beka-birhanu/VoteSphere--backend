@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group } from './../typeORM/entities/group';
@@ -28,7 +32,7 @@ export class GroupService {
       createGroupDto.adminUsername,
     );
     if (existingGroup) {
-      throw new Error('Admin can create only one group.');
+      throw new BadRequestException('Admin can create only one group.');
     }
 
     const group = new Group();

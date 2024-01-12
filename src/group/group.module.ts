@@ -5,6 +5,7 @@ import { UsersModule } from 'src/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Group } from 'src/typeORM/entities/group';
 import { AuthModule } from 'src/auth/auth.module';
+import { PollModule } from 'src/poll/poll.module';
 
 @Module({
   imports: [UsersModule, TypeOrmModule.forFeature([Group]), AuthModule],
