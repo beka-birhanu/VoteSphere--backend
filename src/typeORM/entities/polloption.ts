@@ -18,7 +18,10 @@ export class PollOption {
   @Column({ name: 'number_of_vote', default: 0 })
   numberOfVotes: number;
 
-  @ManyToOne(() => Poll, (poll) => poll.options, { nullable: false })
+  @ManyToOne(() => Poll, (poll) => poll.options, {
+    nullable: false,
+    cascade: true,
+  })
   @JoinColumn({ name: 'poll_id' })
   poll: Poll;
 }

@@ -20,9 +20,7 @@ export class Poll {
   @Column({ default: true })
   isOpen: boolean;
 
-  @OneToMany(() => PollOption, (pollOption) => pollOption.poll, {
-    cascade: true,
-  })
+  @OneToMany(() => PollOption, (pollOption) => pollOption.poll)
   options: PollOption[];
 
   @ManyToOne(() => Group, (group) => group.polls, { nullable: false })
