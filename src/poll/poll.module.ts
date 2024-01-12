@@ -8,6 +8,7 @@ import { Poll } from 'src/typeORM/entities/poll';
 import { Group } from 'src/typeORM/entities/group';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
+import { User } from 'src/typeORM/entities/user';
 
 @Module({
   controllers: [PollController],
@@ -16,7 +17,7 @@ import { AuthModule } from 'src/auth/auth.module';
     GroupModule,
     UsersModule,
     AuthModule,
-    TypeOrmModule.forFeature([Group, Poll, PollOption]),
+    TypeOrmModule.forFeature([Group, Poll, PollOption, User]),
   ],
 })
 export class PollModule {}
