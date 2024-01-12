@@ -71,7 +71,10 @@ export class AuthService {
     const user = await this.usersService.findOne(username);
     const role = user.role;
     const email = user.email;
-    const group = user.group.id;
+    let group = null;
+    if (user.group) {
+      group = user.group.id;
+    }
     const payload = { email: email, username: username };
 
     // Sign and return both access and refresh tokens
