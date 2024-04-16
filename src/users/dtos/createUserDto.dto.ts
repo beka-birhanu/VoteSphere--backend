@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
+import { IsEmail, IsIn, IsNotEmpty, Length, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -30,5 +30,6 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty({ message: 'role cannot be empty' })
+  @IsIn(['Admin', 'user'], { message: 'Role must be either "Admin" or "user"' })
   role: string;
 }
