@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
 import * as zxcvbn from 'zxcvbn';
 import { ApiTags } from '@nestjs/swagger';
-import { SignOutUserDto } from './dtos/signoutUserDto.dto';
+import { SignOutUserDto } from './dtos/signOutUserDto.dto';
 
 @ApiTags('auth')
 @Injectable()

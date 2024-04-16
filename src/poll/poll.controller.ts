@@ -4,7 +4,9 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { PollService } from './poll.service';
@@ -13,20 +15,39 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { CreatePollDto } from './dtos/createPollDto.dto';
 import { Poll } from 'src/typeORM/entities/poll';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 
-@Controller('poll')
+@ApiTags('polls')
+@Controller('polls')
 export class PollController {
   constructor(private readonly pollService: PollService) {}
 
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
-  @Post('create')
+  @Post()
+  @ApiOperation({ summary: 'Create Poll', description: 'Create a new poll' })
+  @ApiBearerAuth()
+  @ApiBody({ type: CreatePollDto })
+  @ApiResponse({ status: 201, description: 'Created' })
   async createPoll(@Body() createPollDto: CreatePollDto): Promise<Poll> {
     return await this.pollService.addPoll(createPollDto);
   }
+
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
-  @Delete(':pollId/delete')
+  @Delete(':pollId')
+  @ApiOperation({ summary: 'Delete Poll', description: 'Delete a poll by ID' })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'pollId', type: 'number' })
+  @ApiResponse({ status: 204, description: 'No Content' })
   async deletePoll(
     @Param('pollId') pollId: number,
     @Body() adminUsername: string,
@@ -36,13 +57,28 @@ export class PollController {
 
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
-  @Post(':pollId/close')
+  @Patch(':pollId/close')
+  @ApiOperation({
+    summary: 'Close Poll',
+    description: 'Close a poll by ID to prevent further voting',
+  })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'pollId', type: 'number' })
+  @ApiResponse({ status: 200, description: 'OK' })
   async closePoll(@Param('pollId') pollId: number): Promise<void> {
     await this.pollService.closePoll(pollId);
   }
+
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin', 'User'])
-  @Post(':pollId/vote')
+  @Patch(':pollId/vote')
+  @ApiOperation({
+    summary: 'Vote on Poll',
+    description: 'Vote on a poll by ID with the specified option',
+  })
+  @ApiBearerAuth()
+  @ApiParam({ name: 'pollId', type: 'number' })
+  @ApiResponse({ status: 200, description: 'OK', type: Poll })
   async vote(
     @Param('pollId') pollId: number,
     @Body('optionId') optionId: number,
@@ -53,8 +89,15 @@ export class PollController {
 
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin', 'User'])
-  @Get(':groupId/polls')
-  async getPolls(@Param('groupId') groupId: number): Promise<Poll[]> {
+  @Get()
+  @ApiOperation({
+    summary: 'Get Polls',
+    description: 'Get polls by specifying a group ID',
+  })
+  @ApiBearerAuth()
+  @ApiQuery({ name: 'groupId', type: 'number' })
+  @ApiResponse({ status: 200, description: 'OK', type: [Poll] })
+  async getPolls(@Query('groupId') groupId: number): Promise<Poll[]> {
     return await this.pollService.getPollsByGroupId(groupId);
   }
 }

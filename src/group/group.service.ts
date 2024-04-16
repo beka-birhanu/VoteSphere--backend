@@ -82,7 +82,7 @@ export class GroupService {
       return null;
     }
   }
-  async findMemders(groupId: number) {
+  async findMembers(groupId: number) {
     return await this.usersService.getUsersByGroupId(groupId);
   }
 }

@@ -4,7 +4,8 @@ import {
   Body,
   UseGuards,
   Req,
-  HttpCode,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import { MembershipService } from './membership.service';
 import { RolesGuard } from 'src/auth/guards/role.guard';
@@ -15,9 +16,18 @@ import { UsersService } from 'src/users/users.service';
 import { Request } from 'express';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 import { STATUS_CODES } from 'http';
 
-@Controller('groupmembership')
+@ApiTags('groupmemberships')
+@Controller('groupmemberships')
 export class MembershipController {
   constructor(
     private readonly membershipService: MembershipService,
@@ -28,15 +38,32 @@ export class MembershipController {
 
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
-  @Post('add')
+  @Post()
+  @ApiOperation({
+    summary: 'Add Member to Group',
+    description: 'Add a user to a group. Requires Admin role.',
+  })
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'Successful operation' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+        },
+      },
+      required: ['username'],
+    },
+  })
   async addMemberToGroup(
     @Body('username') username: string,
     @Req() request: Request,
   ): Promise<string> {
     const authorizationHeader = request.headers['authorization'] as string;
-    const token = authorizationHeader.split(' ')[1]; // Extract the token from the Authorization header.
+    const token = authorizationHeader.split(' ')[1];
 
-    // Get the username from the token using the AuthService.
     const adminUsername = this.jwtService.verify(token, {
       secret: `${process.env.JWT_SECRET}`,
     }).username;
@@ -58,21 +85,28 @@ export class MembershipController {
       await this.membershipService.addMemberToGroup(user, group);
       return STATUS_CODES.successful;
     } catch (error) {
-      throw error;
+      throw new BadRequestException(error.message || 'Bad Request');
     }
   }
 
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
-  @Post('remove')
-  async removeMemberToGroup(
-    @Body('username') username: string,
+  @Delete(':username')
+  @ApiOperation({
+    summary: 'Remove Member from Group',
+    description: 'Remove a user from a group. Requires Admin role.',
+  })
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'Successful operation' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiParam({ name: 'username', type: 'string' })
+  async removeMemberFromGroup(
+    @Param('username') username: string,
     @Req() request: Request,
   ): Promise<string> {
     const authorizationHeader = request.headers['authorization'] as string;
-    const token = authorizationHeader.split(' ')[1]; // Extract the token from the Authorization header.
+    const token = authorizationHeader.split(' ')[1];
 
-    // Get the username from the token using the AuthService.
     const adminUsername = this.jwtService.verify(token, {
       secret: `${process.env.JWT_SECRET}`,
     }).username;
@@ -95,7 +129,7 @@ export class MembershipController {
       await this.membershipService.removeMemberFromGroup(user, group);
       return STATUS_CODES.successful;
     } catch (error) {
-      throw error;
+      throw new BadRequestException(error.message || 'Bad Request');
     }
   }
 }
