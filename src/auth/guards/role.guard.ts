@@ -55,7 +55,7 @@ export class RolesGuard implements CanActivate {
   private extractTokenFromHeaders(request: any): string | null {
     const authorizationHeader = request.headers.authorization;
 
-    if (authorizationHeader && authorizationHeader.split(' ')[0] == 'bearer') {
+    if (authorizationHeader && authorizationHeader.split(' ')[0] == 'Bearer') {
       return authorizationHeader.split(' ')[1];
     }
     return null;
