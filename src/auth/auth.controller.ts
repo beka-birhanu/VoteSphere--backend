@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -13,7 +22,6 @@ import { RefreshJwtGuard } from './guards/refreshJwtToken.guard';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
 import { RefreshTokenDto } from './dtos/refreshTokenDto.dto';
 import { SignOutUserDto } from './dtos/signOutUserDto.dto';
-import { JwtGuard } from './guards/jwtAuth.guard';
 import { STATUS_CODES } from 'http';
 
 @ApiTags('auth')
@@ -25,7 +33,7 @@ export class AuthController {
   /**
    * Sign up a new user.
    * @param signUpUserDto - User's sign-up information
-   * @returns {Object} - Object containing username, access_token, and refresh_token
+   * @createUserDto: CreateUserDto, ipAddress: anying username, access_token, and refresh_token
    * @throws {ConflictException} if a user with the same username or email already exists
    * @throws {BadRequestException} if the password is not strong enough
    */
@@ -62,32 +70,12 @@ export class AuthController {
   }
 
   /**
-   * Revokes the user's JWT token.
-   * @param signOutDto - User's sign-out information
-   * @returns {success} - Assumes all sign-outs are successful
-   * @throws {UnauthorizedException} if the refresh token is invalid
-   */
-  @UseGuards(JwtGuard)
-  @Patch('signout')
-  @ApiOperation({
-    summary: 'Sign Out',
-    description: "Revokes the user's JWT token.",
-  })
-  @ApiResponse({ status: 200, description: 'Success' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  signOut(@Body() signOutDto: SignOutUserDto) {
-    return this.authService.revokeToken(signOutDto)
-      ? STATUS_CODES.successful
-      : STATUS_CODES.INTERNAL_SERVER_ERROR;
-  }
-
-  /**
    * Refresh the user's JWT token.
    * @param refreshTokenDto - User's refresh token information
    * @returns {Object} - Object containing access_token
    * @throws {UnauthorizedException} if the refresh token is invalid
    */
-  @UseGuards(RefreshJwtGuard, JwtGuard)
+  @UseGuards(RefreshJwtGuard)
   @Get('refresh-token')
   @ApiOperation({
     summary: 'Refresh Token',
@@ -101,5 +89,29 @@ export class AuthController {
   })
   refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto.username);
+  }
+
+  /**
+   * Revokes the user's JWT token.
+   * @param signOutDto - User's sign-out information
+   * @returns {success} - Assumes all sign-outs are successful
+   * @throws {UnauthorizedException} if the refresh token is invalid
+   */
+  @UseGuards(RefreshJwtGuard)
+  @Patch('signout')
+  @ApiOperation({
+    summary: 'Sign Out',
+    description: "Revokes the user's JWT token.",
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async signOut(@Body() signOutDto: SignOutUserDto) {
+    const ok = await this.authService.revokeToken(signOutDto);
+
+    if (!ok) {
+      throw new BadRequestException('send the same token as in the header');
+    }
+
+    return STATUS_CODES.successful;
   }
 }
