@@ -5,7 +5,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { RefreshJwtStrategy } from './strategies/refreshToken.strategy';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from './guards/role.guard';
 
@@ -17,14 +16,13 @@ import { RolesGuard } from './guards/role.guard';
       // Configure and register the JwtModule for JWT token handling
       global: true,
       secret: `${process.env.JWT_SECRET}`,
-      signOptions: { expiresIn: '1020s' },
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   providers: [
     AuthService, // Authentication service
     LocalStrategy, // Local strategy for username/password authentication
     JwtStrategy, // JWT strategy for token validation
-    RefreshJwtStrategy, // Strategy for refreshing JWT tokens
     RolesGuard, // Guard for role-based access control
   ],
   controllers: [AuthController], // Controller for authentication endpoints
