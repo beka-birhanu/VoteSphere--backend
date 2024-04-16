@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
@@ -49,9 +50,13 @@ export class AuthService {
       throw new BadRequestException('Password is not strong enough');
     }
 
-    // Create the user and sign them in, returning tokens
-    await this.usersService.createUser(createUserDto);
-    return await this.signIn(createUserDto.username);
+    try {
+      // Create the user and sign them in, returning tokens
+      await this.usersService.createUser(createUserDto);
+      return await this.signIn(createUserDto.username);
+    } catch (error) {
+      throw new InternalServerErrorException('Internal server error');
+    }
   }
 
   /**
@@ -75,11 +80,12 @@ export class AuthService {
     if (user.group) {
       group = user.group.id;
     }
-    const payload = { email: email, username: username };
+    const acceess_payload = { email: email, username: username };
+    const refresh_payload = { username: username, role: role };
 
     // Sign and return both access and refresh tokens
-    const access_token = await this.jwtService.signAsync(payload);
-    const refresh_token = await this.jwtService.signAsync(payload, {
+    const access_token = await this.jwtService.signAsync(acceess_payload);
+    const refresh_token = await this.jwtService.signAsync(refresh_payload, {
       expiresIn: '30d',
     });
 
@@ -109,11 +115,13 @@ export class AuthService {
   async revokeToken(signOutDto: SignOutUserDto): Promise<boolean> {
     // Find user by username and extract email for payload
     const { username, token } = signOutDto;
-    const isValid = this.verifyToken(token);
-    if (isValid) {
+    const decodedToken = await this.decodeToken(token);
+
+    if (decodedToken && decodedToken.role) {
       this.usersService.addBlackListToken(username, token);
       return true;
     }
+
     return false;
   }
 
@@ -149,17 +157,8 @@ export class AuthService {
     }
   }
 
-  private async verifyToken(token: string): Promise<boolean> {
-    try {
-      this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
   // Decode the token using the JWT service
-  decodeToken(token: string): { username: string } | null {
+  decodeToken(token: string): any {
     try {
       return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
     } catch (error) {
