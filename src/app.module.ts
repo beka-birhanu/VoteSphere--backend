@@ -20,9 +20,9 @@ import { PollModule } from './poll/poll.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 8001,
+      port: 8000,
       username: 'postgres',
-      password: 'pass123',
+      password: 'cBeYjAqy@8F}gc1H1545~!-test',
       database: 'votesphere',
       autoLoadEntities: true,
       entities: [User, Group, PollOption, Poll],
