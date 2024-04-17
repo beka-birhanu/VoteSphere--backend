@@ -44,7 +44,7 @@ export class RolesGuard implements CanActivate {
     // Extract the username from the decoded token
     const username = decodedToken.username;
 
-    // Use await to get the actual user roles
+    // Use userservice to get the actual user roles
     const userRoles = await this.userService.getUserRole(username);
 
     // Check if user roles match the required roles
