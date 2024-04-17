@@ -16,6 +16,7 @@ export class RefreshJwtGuard implements CanActivate {
     // Extract token from request headers
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeaders(request);
+    const username = request.body.username;
 
     // If no token is found, access is denied
     if (!token) {
@@ -25,12 +26,14 @@ export class RefreshJwtGuard implements CanActivate {
     const decodedToken = this.decodeToken(token);
 
     // If token verification fails, access is denied
-    if (!decodedToken || !decodedToken.username || !decodedToken.role) {
+    if (
+      !decodedToken ||
+      !decodedToken.username ||
+      decodedToken.username !== username ||
+      !decodedToken.role
+    ) {
       return false;
     }
-
-    // Extract the username from the decoded token
-    const username = decodedToken.username;
 
     const blackList = await this.usersService.getBlacklist(username);
 

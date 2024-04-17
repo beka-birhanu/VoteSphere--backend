@@ -99,7 +99,12 @@ export class AuthService {
    */
   async refreshToken(username: string): Promise<{ access_token: string }> {
     // Find user by username and extract email for payload
-    const email = (await this.usersService.findOne(username)).email;
+    const user = await this.usersService.findOne(username);
+
+    if (!user) {
+      throw new BadRequestException('no such username');
+    }
+    const email = user.email;
     const payload = { email: email, username: username };
 
     // Sign and return a new access token for refresh
