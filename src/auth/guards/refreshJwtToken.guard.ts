@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UsersService } from 'src/users/users.service';
 
@@ -13,7 +12,7 @@ export class RefreshJwtGuard implements CanActivate {
     private readonly jwtService: JwtService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Extract token from request headers
+    // Extract token and username from request
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeaders(request);
     const username = request.body.username;
@@ -25,7 +24,9 @@ export class RefreshJwtGuard implements CanActivate {
     // Decode the token to extract username
     const decodedToken = this.decodeToken(token);
 
-    // If token verification fails, access is denied
+    // If token verification fails
+    // or the owner of the token dont match the requester
+    // or the token is not a refresh token, access is denied
     if (
       !decodedToken ||
       !decodedToken.username ||
@@ -37,6 +38,7 @@ export class RefreshJwtGuard implements CanActivate {
 
     const blackList = await this.usersService.getBlacklist(username);
 
+    // if the refresh token have been revoked access is denied
     if (blackList && blackList.includes(token)) {
       return false;
     }

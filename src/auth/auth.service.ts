@@ -23,13 +23,15 @@ export class AuthService {
   /**
    * Sign up a new user.
    * @param createUserDto - User's sign-up information
-   * @returns { access_token, refresh_token } - Tokens if sign-up is successful
-   * @throws ConflictException if a user with the same username or email already exists
-   * @throws BadRequestException if the password is not strong enough
+   * @returns {Object} - Object containing access_token and refresh_token upon successful sign-up
+   * @throws {ConflictException} if a user with the same username or email already exists
+   * @throws {BadRequestException} if the password is not strong enough
+   * @throws {InternalServerErrorException} if an unexpected error occurs
    */
-  async signUp(
-    createUserDto: CreateUserDto,
-  ): Promise<{ access_token: string; refresh_token: string }> {
+  async signUp(createUserDto: CreateUserDto): Promise<{
+    access_token: string;
+    refresh_token: string;
+  }> {
     // Check if email or username already exists
     const isEmailUsed = await this.usersService.findOne(createUserDto.email);
     const isUserNameUsed = await this.usersService.findOne(
@@ -51,9 +53,9 @@ export class AuthService {
     }
 
     try {
-      // Create the user and sign them in, returning tokens
+      // Create the user and sign them in
       await this.usersService.createUser(createUserDto);
-      return await this.signIn(createUserDto.username);
+      return this.signIn(createUserDto.username);
     } catch (error) {
       throw new InternalServerErrorException('Internal server error');
     }
@@ -102,7 +104,7 @@ export class AuthService {
     const user = await this.usersService.findOne(username);
 
     if (!user) {
-      throw new BadRequestException('no such username');
+      throw new BadRequestException('No such username');
     }
     const email = user.email;
     const payload = { email: email, username: username };
@@ -127,7 +129,9 @@ export class AuthService {
       return true;
     }
 
-    return false;
+    throw new BadRequestException(
+      'Provided token does not match the token in the header',
+    );
   }
 
   /**

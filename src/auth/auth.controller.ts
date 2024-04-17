@@ -5,7 +5,6 @@ import {
   Get,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -32,86 +31,110 @@ export class AuthController {
 
   /**
    * Sign up a new user.
-   * @param signUpUserDto - User's sign-up information
-   * @createUserDto: CreateUserDto, ipAddress: anying username, access_token, and refresh_token
+   * @param createUserDto - User's sign-up information
    * @throws {ConflictException} if a user with the same username or email already exists
    * @throws {BadRequestException} if the password is not strong enough
    */
   @Post('signup')
   @ApiOperation({
     summary: 'Sign Up',
-    description: 'Sign up a new user.',
+    description: 'Create a new user account.',
   })
   @ApiOkResponse({
-    description: 'Returns user information and tokens if sign-up is successful',
+    description:
+      'Returns user details and authentication tokens upon successful sign-up',
   })
-  async signUpUser(@Body() signUpUserDto: CreateUserDto) {
-    return this.authService.signUp(signUpUserDto);
+  @ApiResponse({
+    status: 409,
+    description:
+      'Conflict: A user with the same username or email already exists.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request: The password provided is not strong enough.',
+  })
+  async signUpUser(@Body() createUserDto: CreateUserDto) {
+    return this.authService.signUp(createUserDto);
   }
 
   /**
    * Sign in a user.
    * @param signInDto - User's sign-in information
-   * @returns {Object} - Object containing username, access_token, and refresh_token
-   * @throws {UnauthorizedException} if the username is invalid
+   * @returns {Object} - Object containing user details and tokens upon successful sign-in
+   * @throws {UnauthorizedException} if the provided username is invalid
    */
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   @ApiOperation({
     summary: 'Sign In',
-    description: 'Sign in a user.',
+    description: 'Authenticate and sign in a user.',
   })
   @ApiOkResponse({
-    description: 'Returns user information and tokens if sign-in is successful',
+    description:
+      'Returns user details and authentication tokens upon successful sign-in',
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  signIn(@Body() signInDto: SignInUserDto) {
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized: Invalid username or password',
+  })
+  async signIn(@Body() signInDto: SignInUserDto) {
     return this.authService.signIn(signInDto.username);
   }
 
   /**
-   * Refresh the user's JWT token.
-   * @param refreshTokenDto - User's refresh token information
-   * @returns {Object} - Object containing access_token
-   * @throws {UnauthorizedException} if the refresh token is invalid
+   * Refreshes the user's authentication token.
+   * @param refreshTokenDto - User's refresh token data
+   * @returns {Object} - Object containing a new access token
+   * @throws {UnauthorizedException} if the provided refresh token is invalid
    */
   @UseGuards(RefreshJwtGuard)
   @Get('refresh-token')
   @ApiOperation({
-    summary: 'Refresh Token',
-    description: "Refresh the user's JWT token.",
+    summary: 'Refresh Authentication Token',
+    description:
+      "Obtain a new access token by refreshing the user's authentication token.",
+  })
+  @ApiOkResponse({
+    description: 'Returns a new access token upon successful refresh.',
   })
   @ApiResponse({
-    status: 200,
-    type: Object, // Specify the response type
-    description:
-      'Returns object containing access_token if refresh is successful',
+    status: 403,
+    description: 'Forbidden: The refresh token does not belong to the user.',
   })
-  refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request: Invalid username provided.',
+  })
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshToken(refreshTokenDto.username);
   }
 
   /**
    * Revokes the user's JWT token.
    * @param signOutDto - User's sign-out information
-   * @returns {success} - Assumes all sign-outs are successful
+   * @returns {success} - Indicates successful sign-out
    * @throws {UnauthorizedException} if the refresh token is invalid
+   * @throws {BadRequestException} if the provided token in the body does not match the token in the header
    */
   @UseGuards(RefreshJwtGuard)
   @Patch('signout')
   @ApiOperation({
     summary: 'Sign Out',
-    description: "Revokes the user's JWT token.",
+    description: "Revoke the user's JWT token.",
   })
-  @ApiResponse({ status: 200, description: 'Success' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOkResponse({
+    description: 'Success: JWT token revoked successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized: Invalid or expired refresh token',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request: Provided token in the body does not match the token in the header',
+  })
   async signOut(@Body() signOutDto: SignOutUserDto) {
-    const ok = await this.authService.revokeToken(signOutDto);
-
-    if (!ok) {
-      throw new BadRequestException('send the same token as in the header');
-    }
-
-    return STATUS_CODES.successful;
+    return this.authService.revokeToken(signOutDto);
   }
 }
