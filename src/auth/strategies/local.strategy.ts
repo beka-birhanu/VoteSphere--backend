@@ -18,7 +18,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
    * @returns {boolean} - True if the credentials are valid
    * @throws UnauthorizedException if the credentials are invalid
    */
-  async validate(username: string, password: string) {
+  async validate(username: string, password: string): Promise<boolean> {
     // Validate user credentials using the AuthService
     const isValid = await this.authService.validatePassword(username, password);
 
