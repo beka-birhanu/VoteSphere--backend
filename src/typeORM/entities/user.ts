@@ -1,12 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { AfterUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Group } from './group';
 import { Poll } from './poll';
 
@@ -29,12 +21,13 @@ export class User {
 
   @ManyToOne(() => Group, (group) => group.users, {
     nullable: true,
-    eager: true,
+    eager: false,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'group_id' })
   group: Group;
 
   @ManyToMany(() => Poll, { nullable: true, cascade: true })
-  @JoinTable()
+  @JoinTable({ name: 'user_voted_polls' })
   votedPolls: Poll[];
 }
