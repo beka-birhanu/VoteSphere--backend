@@ -4,6 +4,7 @@ import { Roles } from '../decorators/roles.decorator';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @Injectable()
 @ApiBearerAuth()
@@ -52,7 +53,7 @@ export class RolesGuard implements CanActivate {
   }
 
   // Extract token from headers
-  private extractTokenFromHeaders(request: any): string | null {
+  private extractTokenFromHeaders(request: Request): string | null {
     const authorizationHeader = request.headers.authorization;
 
     if (authorizationHeader && authorizationHeader.split(' ')[0] == 'Bearer') {

@@ -1,19 +1,5 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Get,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignInUserDto } from './dtos/signInUserDto.dto';
 import { LocalAuthGuard } from './guards/localAuth.guard';
@@ -21,7 +7,6 @@ import { RefreshJwtGuard } from './guards/refreshJwtToken.guard';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
 import { RefreshTokenDto } from './dtos/refreshTokenDto.dto';
 import { SignOutUserDto } from './dtos/signOutUserDto.dto';
-import { STATUS_CODES } from 'http';
 
 @ApiTags('auth')
 @ApiBearerAuth()
@@ -41,13 +26,11 @@ export class AuthController {
     description: 'Create a new user account.',
   })
   @ApiOkResponse({
-    description:
-      'Returns user details and authentication tokens upon successful sign-up',
+    description: 'Returns user details and authentication tokens upon successful sign-up',
   })
   @ApiResponse({
     status: 409,
-    description:
-      'Conflict: A user with the same username or email already exists.',
+    description: 'Conflict: A user with the same username or email already exists.',
   })
   @ApiResponse({
     status: 400,
@@ -70,8 +53,7 @@ export class AuthController {
     description: 'Authenticate and sign in a user.',
   })
   @ApiOkResponse({
-    description:
-      'Returns user details and authentication tokens upon successful sign-in',
+    description: 'Returns user details and authentication tokens upon successful sign-in',
   })
   @ApiResponse({
     status: 401,
@@ -91,8 +73,7 @@ export class AuthController {
   @Get('refresh-token')
   @ApiOperation({
     summary: 'Refresh Authentication Token',
-    description:
-      "Obtain a new access token by refreshing the user's authentication token.",
+    description: "Obtain a new access token by refreshing the user's authentication token.",
   })
   @ApiOkResponse({
     description: 'Returns a new access token upon successful refresh.',
@@ -131,8 +112,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description:
-      'Bad Request: Provided token in the body does not match the token in the header',
+    description: 'Bad Request: Provided token in the body does not match the token in the header',
   })
   async signOut(@Body() signOutDto: SignOutUserDto) {
     return this.authService.revokeToken(signOutDto);

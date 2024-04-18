@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -33,10 +28,8 @@ export class AuthService {
     refresh_token: string;
   }> {
     // Check if email or username already exists
-    const isEmailUsed = await this.usersService.findOne(createUserDto.email);
-    const isUserNameUsed = await this.usersService.findOne(
-      createUserDto.username,
-    );
+    const isEmailUsed = await this.usersService.findOneByEmail(createUserDto.email);
+    const isUserNameUsed = await this.usersService.findOneByUsername(createUserDto.username);
 
     // Throw exceptions if the email or username is already in use
     if (isUserNameUsed) {
@@ -75,7 +68,7 @@ export class AuthService {
     refresh_token: string;
   }> {
     // Find user by username and extract email for payload and role
-    const user = await this.usersService.findOne(username);
+    const user = await this.usersService.findOneByUsername(username);
     const role = user.role;
     const email = user.email;
     let group = null;
@@ -101,7 +94,7 @@ export class AuthService {
    */
   async refreshToken(username: string): Promise<{ access_token: string }> {
     // Find user by username and extract email for payload
-    const user = await this.usersService.findOne(username);
+    const user = await this.usersService.findOneByUsername(username);
 
     if (!user) {
       throw new BadRequestException('No such username');
@@ -129,9 +122,7 @@ export class AuthService {
       return true;
     }
 
-    throw new BadRequestException(
-      'Provided token does not match the token in the header',
-    );
+    throw new BadRequestException('Provided token does not match the token in the header');
   }
 
   /**
@@ -140,13 +131,10 @@ export class AuthService {
    * @param plainTextPassword - User's plain text password
    * @returns {number} - 0 if the password is valid, 1 if the username is invalid, 2 if the password is invalid, 3 if there is an error
    */
-  async validatePassword(
-    username: string,
-    plainTextPassword: string,
-  ): Promise<number> {
+  async validatePassword(username: string, plainTextPassword: string): Promise<number> {
     try {
       // Find user by username
-      const user = await this.usersService.findOne(username);
+      const user = await this.usersService.findOneByUsername(username);
 
       // If user not found, return invalid username
       if (!user) {
@@ -154,10 +142,7 @@ export class AuthService {
       }
 
       // Compare plain text password with hashed password
-      const passwordCheck = await bcrypt.compare(
-        plainTextPassword,
-        user.password,
-      );
+      const passwordCheck = await bcrypt.compare(plainTextPassword, user.password);
 
       // Return result based on password check
       return passwordCheck ? 0 : 2; // 0 if valid, 2 if invalid
