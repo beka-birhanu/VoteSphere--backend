@@ -26,8 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!payload || !payload.email || !payload.username) {
       throw new UnauthorizedException();
     }
-
-    // Return user information extracted from the JWT payload
-    return { email: payload.email, username: payload.username };
+    // Return true
+    return true;
   }
 }
