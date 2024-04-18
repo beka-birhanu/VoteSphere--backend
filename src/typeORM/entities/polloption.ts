@@ -9,13 +9,13 @@ import { Poll } from './poll';
 
 @Entity({ name: 'options' })
 export class PollOption {
-  @PrimaryGeneratedColumn({ name: 'option_id' })
-  id: number;
+  @PrimaryGeneratedColumn('uuid', { name: 'option_id' })
+  id: string;
 
   @Column({ name: 'option_text', nullable: false })
   optionText: string;
 
-  @Column({ name: 'number_of_vote', default: 0 })
+  @Column({ name: 'number_of_votes', default: 0 })
   numberOfVotes: number;
 
   @ManyToOne(() => Poll, (poll) => poll.options, {
