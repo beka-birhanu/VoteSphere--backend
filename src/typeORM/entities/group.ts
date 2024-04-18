@@ -1,18 +1,14 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user';
 import { Poll } from './poll';
 
 @Entity({ name: 'groups' })
 export class Group {
-  @PrimaryGeneratedColumn({ name: 'group_id' })
-  id: number;
+  static delete(arg0: { id: any }) {
+    throw new Error('Method not implemented.');
+  }
+  @PrimaryGeneratedColumn('uuid', { name: 'group_id' })
+  id: string;
 
   @Column({ name: 'group_name', nullable: false })
   groupName: string;
@@ -23,7 +19,7 @@ export class Group {
   @OneToMany(() => Poll, (poll) => poll.group)
   polls: Poll[];
 
-  @OneToOne(() => User)
-  @JoinColumn({ name: 'username' })
+  @OneToOne(() => User, { nullable: false, eager: false, onUpdate: 'CASCADE' })
+  @JoinColumn({ name: 'admin_username' })
   admin: User;
 }
