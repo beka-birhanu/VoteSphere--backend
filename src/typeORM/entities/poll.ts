@@ -11,8 +11,8 @@ import { Group } from './group';
 
 @Entity({ name: 'polls' })
 export class Poll {
-  @PrimaryGeneratedColumn({ name: 'poll_id' })
-  id: number;
+  @PrimaryGeneratedColumn('uuid', { name: 'poll_id' })
+  id: string;
 
   @Column({ nullable: false })
   question: string;
