@@ -57,42 +57,21 @@ polls, and poll options.
   - A Group can have multiple Polls.
 
 - **PollOption-Poll Relationship:**
-  - Each Poll can have multiple PollOptions.
+  - Each Poll can have multiple PollOptions(minimum of two).
 
 ## Data Types
 
-- `UserID`: INT
+- `UserID`: VARCHAR
 - `Username`: VARCHAR
 - `Password`: VARCHAR
 - `Role`: VARCHAR
-- `TokenBlackList`: LIST OF STRINGS
-- `GroupID`: INT
+- `TokenBlackList`: LIST OF VARCHAR
+- `GroupID`: VARCHAR
 - `GroupName`: VARCHAR
-- `AdminUserID`: INT
-- `PollID`: INT
+- `AdminUserID`: VARCHAR
+- `PollID`: VARCHAR
 - `Question`: TEXT
 - `IsOpen`: BOOLEAN
-- `OptionID`: INT
+- `OptionID`: VARCHAR
 - `OptionText`: VARCHAR
 - `NumberOfVotes`: INT
-
-## Primary and Foreign Keys
-
-- **User:**
-
-  - Primary Key: UserID
-  - Foreign Key: GroupID
-
-- **Group:**
-
-  - Primary Key: GroupID
-  - Foreign Key: AdminUserID
-
-- **Poll:**
-
-  - Primary Key: PollID
-  - Foreign Key: GroupID
-
-- **PollOption:**
-  - Primary Key: OptionID
-  - Foreign Key: PollID
