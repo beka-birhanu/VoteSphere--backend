@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -121,26 +121,26 @@ export class AuthService {
    * Validate a user's password.
    * @param username - User's username
    * @param plainTextPassword - User's plain text password
-   * @returns {number} - 0 if the password is valid, 1 if the username is invalid, 2 if the password is invalid, 3 if there is an error
+   * @returns {boolean} - 0 if the password is valid, 1 if the username is invalid, 2 if the password is invalid, 3 if there is an error
    */
-  async validatePassword(username: string, plainTextPassword: string): Promise<number> {
-    try {
-      // Find user by username
-      const user = await this.usersService.findOneByUsername(username);
+  async validatePassword(username: string, plainTextPassword: string): Promise<boolean> {
+    // Find user by username
+    const user = await this.usersService.findOneByUsername(username);
 
-      // If user not found, return invalid username
-      if (!user) {
-        return 1; // Invalid username
-      }
-
-      // Compare plain text password with hashed password
-      const passwordCheck = await bcrypt.compare(plainTextPassword, user.password);
-
-      // Return result based on password check
-      return passwordCheck ? 0 : 2; // 0 if valid, 2 if invalid
-    } catch (error) {
-      return 3; // Error
+    // If user not found, return invalid username
+    if (!user) {
+      throw new UnauthorizedException('Invalid username');
     }
+
+    // Compare plain text password with hashed password
+    const passwordCheck = await bcrypt.compare(plainTextPassword, user.password);
+
+    // Return result based on password check
+    if (!passwordCheck) {
+      throw new UnauthorizedException('Invalid password');
+    }
+
+    return true;
   }
 
   // Decode the token using the JWT service
