@@ -13,7 +13,6 @@ import { RolesGuard } from './guards/role.guard';
   imports: [
     UsersModule, // Import the UsersModule for user management
     JwtModule.register({
-      // Configure and register the JwtModule for JWT token handling
       global: true,
       secret: `${process.env.JWT_SECRET}`,
       signOptions: { expiresIn: '1h' },

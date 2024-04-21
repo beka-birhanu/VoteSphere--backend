@@ -8,12 +8,13 @@ import { GroupService } from './group.service';
 import { JwtService } from '@nestjs/jwt';
 import { GetGroupDto } from './dtos/getGroupDto.dto';
 import { Request } from 'express';
+import { AuthService } from 'src/auth/auth.service';
 
 @ApiTags('groups')
 @Controller('groups')
 export class GroupController {
   constructor(
-    private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
     private readonly groupService: GroupService,
   ) {}
 
@@ -38,9 +39,7 @@ export class GroupController {
   // Create a new group
   async createGroup(@Req() request: Request, @Body() createGroupDto: CreateGroupDto): Promise<GetGroupDto> {
     const token = request.headers.authorization.split(' ')[1];
-    const header_adminUsername = this.jwtService.verify(token, {
-      secret: `${process.env.JWT_SECRET}`,
-    }).username;
+    const header_adminUsername = this.authService.decodeToken(token)?.username;
 
     // if username in token and body don't match throw unauthorized error
     if (createGroupDto.adminUsername !== header_adminUsername) {
@@ -89,12 +88,8 @@ export class GroupController {
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to add members' })
   // add a member
   async addMemberToGroup(@Body('username') newMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
-    const authorizationHeader = request.headers['authorization'] as string;
-    const token = authorizationHeader.split(' ')[1];
-
-    const adminUsername = this.jwtService.verify(token, {
-      secret: `${process.env.JWT_SECRET}`,
-    }).username;
+    const token = request.headers.authorization.split(' ')[1];
+    const adminUsername = this.authService.decodeToken(token)?.username;
 
     return this.groupService.addMemberToGroup(newMemberUsername, adminUsername, groupId);
   }
@@ -119,12 +114,8 @@ export class GroupController {
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to remove members' })
   // remove a member
   async removeMemberFromGroup(@Body('username') bannedMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
-    const authorizationHeader = request.headers['authorization'] as string;
-    const token = authorizationHeader.split(' ')[1];
-
-    const adminUsername = this.jwtService.verify(token, {
-      secret: `${process.env.JWT_SECRET}`,
-    }).username;
+    const token = request.headers.authorization.split(' ')[1];
+    const adminUsername = this.authService.decodeToken(token)?.username;
 
     return this.groupService.removeMemberFromGroup(bannedMemberUsername, adminUsername, groupId);
   }

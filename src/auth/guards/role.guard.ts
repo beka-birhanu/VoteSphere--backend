@@ -5,15 +5,16 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 @ApiBearerAuth()
 @ApiTags('auth')
 export class RolesGuard implements CanActivate {
   constructor(
-    private reflector: Reflector,
-    private jwtService: JwtService,
-    private userService: UsersService,
+    private readonly reflector: Reflector,
+    private readonly userService: UsersService,
+    private readonly authService: AuthService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,30 +30,24 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeaders(request);
 
-    // If no token is found, access is denied
     if (!token) {
       return false;
     }
 
-    // Decode the token to extract username
-    const decodedToken = this.decodeToken(token);
+    const decodedToken = this.authService.decodeToken(token);
 
     // If token verification fails, access is denied
     if (!decodedToken) {
       return false;
     }
 
-    // Extract the username from the decoded token
     const username = decodedToken.username;
-
-    // Use userservice to get the actual user roles
     const userRoles = await this.userService.getUserRole(username);
 
     // Check if user roles match the required roles
     return this.matchRoles(rolesRequired, userRoles);
   }
 
-  // Extract token from headers
   private extractTokenFromHeaders(request: Request): string | null {
     const authorizationHeader = request.headers.authorization;
 
@@ -62,16 +57,6 @@ export class RolesGuard implements CanActivate {
     return null;
   }
 
-  // Decode the token using the JWT service
-  private decodeToken(token: string): { username: string } | null {
-    try {
-      return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
-    } catch (error) {
-      return null;
-    }
-  }
-
-  // Check if user roles match the required roles
   private matchRoles(rolesRequired: string[], role: string): boolean {
     return rolesRequired.includes(role);
   }

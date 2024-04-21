@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UsersService } from 'src/users/users.service';
 import { Request } from 'express';
+import { AuthService } from '../auth.service';
 
 @ApiTags('auth')
 @ApiBearerAuth()
@@ -10,20 +11,20 @@ import { Request } from 'express';
 export class RefreshJwtGuard implements CanActivate {
   constructor(
     private usersService: UsersService,
-    private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
   ) {}
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Extract token and username from request
     const request = context.switchToHttp().getRequest();
     const header_token = this.extractTokenFromHeaders(request);
     const username = request.body.username;
 
-    // If no token is found, access is denied
     if (!header_token) {
       return false;
     }
-    // Decode the token to extract username
-    const decodedToken = this.decodeToken(header_token);
+
+    const decodedToken = this.authService.decodeToken(header_token);
 
     // If token verification fails
     // or the owner of the token dont match the requester
@@ -42,7 +43,6 @@ export class RefreshJwtGuard implements CanActivate {
     return true;
   }
 
-  // Extract token from headers
   private extractTokenFromHeaders(request: Request): string | null {
     const authorizationHeader = request.headers.authorization;
 
@@ -50,14 +50,5 @@ export class RefreshJwtGuard implements CanActivate {
       return authorizationHeader.split(' ')[1];
     }
     return null;
-  }
-
-  // Decode the token using the JWT service
-  private decodeToken(token: string): { username: string; role: string } | null {
-    try {
-      return this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
-    } catch (error) {
-      return null;
-    }
   }
 }
