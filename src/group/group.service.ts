@@ -1,11 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group } from './../typeORM/entities/group';
 import { CreateGroupDto } from './dtos/createGroupDto.dto';
 import { UsersService } from 'src/users/users.service';
 import { GetGroupDto } from './dtos/getGroupDto.dto';
-import { User } from 'src/typeORM/entities/user';
 import { STATUS_CODES } from 'http';
 
 @Injectable()
@@ -58,44 +57,91 @@ export class GroupService {
     }
   }
 
-  async findMembers(groupId: string): Promise<{ username: string; email: string }[]> {
+  async getMembers(groupId: string): Promise<{ username: string; email: string; is_admin: boolean }[]> {
     // Call the usersService to retrieve users belonging to the specified group ID
-    return this.usersService.getUsersByGroupId(groupId);
+    const members = await this.usersService.getUsersByGroupId(groupId);
+
+    // Transforming user elements based on their role
+    const transformedMembers = members.map((user) => ({
+      username: user.username,
+      email: user.email,
+      is_admin: user.role === 'Admin' ? true : false,
+    }));
+
+    return transformedMembers;
   }
 
-  async addMemberToGroup(user: User, group: Group) {
-    // Update the user's group association
-    user.group = group;
+  async addMemberToGroup(newMemberUsername: string, adminUsername: string, groupId: string) {
+    const admin = await this.usersService.findOneByUsernameWithGroup(adminUsername);
+    const group = admin.group;
 
-    try {
-      // Save the updated user entity
-      await this.usersService.updateUser(user);
-      // Return a success message or status code
-      return STATUS_CODES.successful;
-    } catch (error) {
-      // If an error occurs during the update, throw a BadRequestException
-      throw new BadRequestException(error.message || 'Bad Request');
+    // If the admin don't have a group
+    if (!group) {
+      throw new NotFoundException('Admins must create a group before attempting to add members');
     }
+
+    // If the admins group and the requested group ID don't match deny access
+    if (group.id !== groupId) {
+      throw new UnauthorizedException('current user is not admin for the requested group');
+    }
+
+    const newMember = await this.usersService.findOneByUsernameWithGroup(newMemberUsername);
+
+    if (!newMember) {
+      throw new NotFoundException('Invalid username');
+    }
+
+    if (newMember.role === 'Admin') {
+      throw new ConflictException('There can only be one admin per group');
+    }
+
+    const userHasGroup = newMember.group !== null;
+
+    if (userHasGroup) {
+      throw new ConflictException(`User '${newMember.username}' already belongs to a group.`);
+    }
+    // Update the user's group association
+    newMember.group = group;
+
+    const saveSuccess = await this.usersService.updateUser(newMember);
+
+    return saveSuccess ? STATUS_CODES.successful : STATUS_CODES.InternalServerError;
   }
 
-  async removeMemberFromGroup(user: User, group: Group) {
+  async removeMemberFromGroup(bannedMemberUsername: string, adminUsername: string, groupId: string) {
+    const admin = await this.usersService.findOneByUsernameWithGroup(adminUsername);
+    const group = admin.group;
+
+    // If the admin don't have a group
+    if (!group) {
+      throw new NotFoundException('Admins must create a group before attempting to remove members');
+    }
+
+    // If the admins group and the requested group ID don't match deny access
+    if (group.id !== groupId) {
+      throw new UnauthorizedException('current user is not admin for the requested group');
+    }
+
+    const bannedMember = await this.usersService.findOneByUsernameWithGroup(bannedMemberUsername);
+
+    if (!bannedMember) {
+      throw new NotFoundException('Invalid member username');
+    }
+
+    if (bannedMember.role === 'Admin') {
+      throw new ConflictException('Admins can not leave there own group');
+    }
+
     // Check if the user is a member of the provided group
-    if (!user.group || user.group.id != group.id) {
-      throw new BadRequestException(`User '${user.username}' is not a member of your group`);
+    if (!bannedMember.group || bannedMember.group.id != group.id) {
+      throw new BadRequestException(`User '${bannedMember.username}' is not a member of your group`);
     }
 
     // Remove the user's group association
-    user.group = null;
+    bannedMember.group = null;
+    const saveSuccess = await this.usersService.updateUser(bannedMember);
 
-    try {
-      // Save the updated user entity
-      await this.usersService.updateUser(user);
-      // Return a success message or status code
-      return STATUS_CODES.successful;
-    } catch (error) {
-      // If an error occurs during the update, throw a BadRequestException
-      throw new BadRequestException(error.message || 'Bad Request');
-    }
+    return saveSuccess ? STATUS_CODES.successful : STATUS_CODES.InternalServerError;
   }
 
   async findGroupByAdminUsername(adminUsername: string): Promise<Group | undefined> {
@@ -117,9 +163,5 @@ export class GroupService {
       where: { id: groupId },
       relations: ['admin_username'],
     });
-  }
-
-  async deleteGroup(groupId: string) {
-    await this.groupRepository.delete(groupId);
   }
 }
