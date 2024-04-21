@@ -5,7 +5,6 @@ import { JwtGuard } from 'src/auth/guards/jwtAuth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { CreateGroupDto } from './dtos/createGroupDto.dto';
 import { GroupService } from './group.service';
-import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { GetGroupDto } from './dtos/getGroupDto.dto';
 import { Request } from 'express';
@@ -15,7 +14,6 @@ import { Request } from 'express';
 export class GroupController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
     private readonly groupService: GroupService,
   ) {}
 
@@ -68,12 +66,6 @@ export class GroupController {
   @ApiResponse({ status: 404, description: 'Not Found: The provided group ID is invalid.' })
   // get members
   async getMembers(@Param('groupId') groupId: string): Promise<{ username: string; email: string; is_admin: boolean }[]> {
-    const group = await this.groupService.findGroupById(groupId);
-    // check the user is member of the group(not implemented)
-    if (!group) {
-      throw new NotFoundException('Invalid group ID');
-    }
-
     return this.groupService.getMembers(groupId);
   }
 
