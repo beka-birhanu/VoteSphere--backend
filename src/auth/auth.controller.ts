@@ -116,7 +116,7 @@ export class AuthController {
     status: 400,
     description: 'Bad Request: Provided token in the body does not match the token in the header',
   })
-  async signOut(@Body() signOutDto: SignOutUserDto): Promise<boolean> {
+  async signOut(@Body() signOutDto: SignOutUserDto): Promise<string> {
     return this.authService.revokeToken(signOutDto);
   }
 }

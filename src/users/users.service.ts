@@ -32,7 +32,6 @@ export class UsersService {
       tokenBlackList: null,
     });
 
-    // Save the new user to the database
     return this.userRepository.save(newUser);
   }
 
@@ -58,20 +57,16 @@ export class UsersService {
     // Find the user by username without including group information
     const user = await this.findOneByUsername(username, false);
 
-    // If user is not found, throw NotFoundException
     if (!user) {
       throw new NotFoundException(`User with username '${username}' not found.`);
     }
 
-    // Initialize tokenBlackList if it's null
     if (!user.tokenBlackList) {
       user.tokenBlackList = [];
     }
 
-    // Add the token to the blacklist
     user.tokenBlackList.push(token);
 
-    // Save the updated user to the database
     return this.userRepository.save(user);
   }
 

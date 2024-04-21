@@ -15,5 +15,5 @@ export class GetGroupDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ example: '12345hj6', description: 'ID of the group' })
-  groupId: string;
+  groupID: string;
 }

@@ -52,7 +52,7 @@ export class GroupService {
     // If the group is successfully created, construct and return the group DTO
     if (newGroup) {
       const groupDto = {
-        groupId: group.id,
+        groupID: group.id,
         groupName: group.groupName,
         adminUsername: group.admin.username,
       };

@@ -7,6 +7,7 @@ import * as zxcvbn from 'zxcvbn';
 import { ApiTags } from '@nestjs/swagger';
 import { SignOutUserDto } from './dtos/signOutUserDto.dto';
 import { SignInResponseDto } from './dtos/signInResponseDto.dto';
+import { STATUS_CODES } from 'http';
 
 @ApiTags('auth')
 @Injectable()
@@ -29,7 +30,6 @@ export class AuthService {
     const isEmailUsed = await this.usersService.isEmailUsed(createUserDto.email);
     const isUserNameUsed = await this.usersService.findOneByUsername(createUserDto.username, false);
 
-    // Throw exceptions if the email or username is already in use
     if (isUserNameUsed) {
       throw new ConflictException('User with this username already exists');
     }
@@ -63,20 +63,21 @@ export class AuthService {
     const user = await this.usersService.findOneByUsername(username, true);
     const role = user.role;
     const email = user.email;
-    let group_id = null;
+    let groupID = null;
+
     if (user.group) {
-      group_id = user.group.id;
+      groupID = user.group.id;
     }
-    const acceess_payload = { email: email, username: username };
-    const refresh_payload = { username: username, role: role };
+    const acceessPayload = { email: email, username: username };
+    const refreshPayload = { username: username, role: role };
 
     // Sign and return both access and refresh tokens
-    const access_token = await this.jwtService.signAsync(acceess_payload);
-    const refresh_token = await this.jwtService.signAsync(refresh_payload, {
+    const accessToken = await this.jwtService.signAsync(acceessPayload);
+    const refreshToken = await this.jwtService.signAsync(refreshPayload, {
       expiresIn: '30d',
     });
 
-    return { username, role, group_id, access_token, refresh_token };
+    return { username, role, groupID, accessToken, refreshToken };
   }
 
   /**
@@ -104,14 +105,15 @@ export class AuthService {
    * @param username - User's username
    * @returns { boolean} - Assumes All JWT token  revocking is successful
    */
-  async revokeToken(signOutDto: SignOutUserDto): Promise<boolean> {
+  async revokeToken(signOutDto: SignOutUserDto): Promise<string> {
     // Find user by username and extract email for payload
     const { username, token } = signOutDto;
     const decodedToken = await this.decodeToken(token);
 
     if (decodedToken && decodedToken.role) {
-      this.usersService.addBlackListToken(username, token);
-      return true;
+      await this.usersService.addBlackListToken(username, token);
+
+      return STATUS_CODES.success;
     }
 
     throw new BadRequestException('Provided token does not match the token in the header');
@@ -124,10 +126,8 @@ export class AuthService {
    * @returns {boolean} - 0 if the password is valid, 1 if the username is invalid, 2 if the password is invalid, 3 if there is an error
    */
   async validatePassword(username: string, plainTextPassword: string): Promise<boolean> {
-    // Find user by username
     const user = await this.usersService.findOneByUsername(username, false);
 
-    // If user not found, return invalid username
     if (!user) {
       throw new UnauthorizedException('Invalid username');
     }
@@ -135,7 +135,6 @@ export class AuthService {
     // Compare plain text password with hashed password
     const passwordCheck = await bcrypt.compare(plainTextPassword, user.password);
 
-    // Return result based on password check
     if (!passwordCheck) {
       throw new UnauthorizedException('Invalid password');
     }

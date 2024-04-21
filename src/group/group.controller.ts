@@ -36,7 +36,7 @@ export class GroupController {
   @ApiResponse({ status: 401, description: 'Unauthorized: User lacks necessary permissions.' })
   @ApiResponse({ status: 404, description: 'Not Found: The requesting user does not exist.' })
   @ApiResponse({ status: 409, description: 'Conflict: The requesting admin already has a group.' })
-  // Create a new group
+  //
   async createGroup(@Req() request: Request, @Body() createGroupDto: CreateGroupDto): Promise<GetGroupDto> {
     const token = request.headers.authorization.split(' ')[1];
     const header_adminUsername = this.authService.decodeToken(token)?.username;
@@ -63,7 +63,7 @@ export class GroupController {
     schema: { type: 'array', items: { type: 'object', properties: { username: { type: 'string' }, email: { type: 'string' } } } },
   })
   @ApiResponse({ status: 404, description: 'Not Found: The provided group ID is invalid.' })
-  // get members
+  //
   async getMembers(@Param('groupId') groupId: string): Promise<{ username: string; email: string; is_admin: boolean }[]> {
     return this.groupService.getMembers(groupId);
   }
@@ -86,7 +86,7 @@ export class GroupController {
   @ApiResponse({ status: 200, description: 'Successful operation' })
   @ApiResponse({ status: 401, description: 'Unauthorized: Current user is not admin for the requested group' })
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to add members' })
-  // add a member
+  //
   async addMemberToGroup(@Body('username') newMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
     const adminUsername = this.authService.decodeToken(token)?.username;
@@ -112,7 +112,7 @@ export class GroupController {
   @ApiResponse({ status: 200, description: 'Successful operation' })
   @ApiResponse({ status: 401, description: 'Unauthorized: User does not have permission for the requested group' })
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to remove members' })
-  // remove a member
+  //
   async removeMemberFromGroup(@Body('username') bannedMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
     const adminUsername = this.authService.decodeToken(token)?.username;
