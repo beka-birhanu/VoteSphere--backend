@@ -1,4 +1,4 @@
-import { AfterUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Group } from './group';
 import { Poll } from './poll';
 
@@ -22,7 +22,7 @@ export class User {
   @ManyToOne(() => Group, (group) => group.users, {
     nullable: true,
     eager: false,
-    onDelete: 'SET NULL',
+    cascade: true,
   })
   @JoinColumn({ name: 'group_id' })
   group: Group;

@@ -4,9 +4,6 @@ import { Poll } from './poll';
 
 @Entity({ name: 'groups' })
 export class Group {
-  static delete(arg0: { id: any }) {
-    throw new Error('Method not implemented.');
-  }
   @PrimaryGeneratedColumn('uuid', { name: 'group_id' })
   id: string;
 
