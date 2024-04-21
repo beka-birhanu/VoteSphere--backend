@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { GroupService } from 'src/group/group.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -31,11 +27,9 @@ export class PollService {
     const optionArray: string[] = Object.values(options);
 
     // Check if the admin has a group
-    const group = await this.groupService.findByAdminUsername(adminUsername);
+    const group = await this.groupService.findOneByAdminUsername(adminUsername);
     if (!group) {
-      throw new NotFoundException(
-        'Admin must have a group to administer. Create a group first.',
-      );
+      throw new NotFoundException('Admin must have a group to administer. Create a group first.');
     }
 
     // Create a new poll entity
@@ -59,7 +53,7 @@ export class PollService {
     await this.pollOptionRepository.save(pollOptions);
     return this.getPollWithOptions(savedPoll.id);
   }
-  async removePoll(pollId: number, username: string): Promise<void> {
+  async removePoll(pollId: string, username: string): Promise<void> {
     // Check if the poll exists
     const pollToRemove = await this.pollRepository.findOne({
       where: { id: pollId },
@@ -76,7 +70,7 @@ export class PollService {
     // Remove the poll itself
     await this.pollRepository.remove(pollToRemove);
   }
-  async closePoll(pollId: number): Promise<void> {
+  async closePoll(pollId: string): Promise<void> {
     // Check if the poll exists
     const pollToClose = await this.pollRepository.findOne({
       where: { id: pollId },
@@ -89,11 +83,7 @@ export class PollService {
     pollToClose.isOpen = false;
     await this.pollRepository.save(pollToClose);
   }
-  async voteOnPoll(
-    pollId: number,
-    optionId: number,
-    username: string,
-  ): Promise<Poll> {
+  async voteOnPoll(pollId: string, optionId: string, username: string): Promise<Poll> {
     // Check if the poll exists
     const pollToVote = await this.pollRepository.findOne({
       where: { id: pollId },
@@ -114,21 +104,14 @@ export class PollService {
     });
     // Check if the poll belongs to the same group as the user
     if (!user.group || pollToVote.group.id !== user.group.id) {
-      throw new BadRequestException(
-        "Poll does not belong to the user's group.",
-      );
+      throw new BadRequestException("Poll does not belong to the user's group.");
     }
-    if (
-      user.votedPolls &&
-      user.votedPolls.some((votedPoll) => votedPoll.id == pollId)
-    ) {
+    if (user.votedPolls && user.votedPolls.some((votedPoll) => votedPoll.id == pollId)) {
       throw new BadRequestException('User has already voted on this poll.');
     }
 
     // Find the selected poll option
-    const selectedOption = pollToVote.options.find(
-      (option) => option.id == optionId,
-    );
+    const selectedOption = pollToVote.options.find((option) => option.id == optionId);
 
     if (!selectedOption) {
       throw new NotFoundException('Poll option not found.');
@@ -148,7 +131,7 @@ export class PollService {
     return await this.getPollWithOptions(pollId);
   }
 
-  async getPollWithOptions(pollId: number): Promise<Poll | undefined> {
+  async getPollWithOptions(pollId: string): Promise<Poll | undefined> {
     const poll = await this.pollRepository.findOne({
       where: { id: pollId },
       relations: ['options'], // Load the options relation
@@ -162,11 +145,7 @@ export class PollService {
   }
   async getPollsByGroupId(groupId: number): Promise<Poll[] | undefined> {
     try {
-      const polls = await this.pollRepository
-        .createQueryBuilder('poll')
-        .leftJoinAndSelect('poll.options', 'options')
-        .where('poll.group.id = :groupId', { groupId })
-        .getMany();
+      const polls = await this.pollRepository.createQueryBuilder('poll').leftJoinAndSelect('poll.options', 'options').where('poll.group.id = :groupId', { groupId }).getMany();
 
       return polls;
     } catch (error) {

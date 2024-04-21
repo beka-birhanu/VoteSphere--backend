@@ -46,10 +46,10 @@ export class PollController {
   @Delete(':pollId')
   @ApiOperation({ summary: 'Delete Poll', description: 'Delete a poll by ID' })
   @ApiBearerAuth()
-  @ApiParam({ name: 'pollId', type: 'number' })
+  @ApiParam({ name: 'pollId', type: 'string' })
   @ApiResponse({ status: 204, description: 'No Content' })
   async deletePoll(
-    @Param('pollId') pollId: number,
+    @Param('pollId') pollId: string,
     @Body() adminUsername: string,
   ): Promise<void> {
     await this.pollService.removePoll(pollId, adminUsername);
@@ -63,9 +63,9 @@ export class PollController {
     description: 'Close a poll by ID to prevent further voting',
   })
   @ApiBearerAuth()
-  @ApiParam({ name: 'pollId', type: 'number' })
+  @ApiParam({ name: 'pollId', type: 'string' })
   @ApiResponse({ status: 200, description: 'OK' })
-  async closePoll(@Param('pollId') pollId: number): Promise<void> {
+  async closePoll(@Param('pollId') pollId: string): Promise<void> {
     await this.pollService.closePoll(pollId);
   }
 
@@ -77,11 +77,11 @@ export class PollController {
     description: 'Vote on a poll by ID with the specified option',
   })
   @ApiBearerAuth()
-  @ApiParam({ name: 'pollId', type: 'number' })
+  @ApiParam({ name: 'pollId', type: 'string' })
   @ApiResponse({ status: 200, description: 'OK', type: Poll })
   async vote(
-    @Param('pollId') pollId: number,
-    @Body('optionId') optionId: number,
+    @Param('pollId') pollId: string,
+    @Body('optionId') optionId: string,
     @Body('username') username: string,
   ): Promise<Poll> {
     return await this.pollService.voteOnPoll(pollId, optionId, username);

@@ -26,8 +26,8 @@ export class AuthService {
    */
   async signUp(createUserDto: CreateUserDto): Promise<SignInResponseDto> {
     // Check if email or username already exists
-    const isEmailUsed = await this.usersService.findOneByEmail(createUserDto.email);
-    const isUserNameUsed = await this.usersService.findOneByUsername(createUserDto.username);
+    const isEmailUsed = await this.usersService.isEmailUsed(createUserDto.email);
+    const isUserNameUsed = await this.usersService.findOneByUsername(createUserDto.username, false);
 
     // Throw exceptions if the email or username is already in use
     if (isUserNameUsed) {
@@ -59,8 +59,8 @@ export class AuthService {
    * @throws {UnauthorizedException} if the username is invalid or sign-in fails
    */
   async signIn(username: string): Promise<SignInResponseDto> {
-    // Find user by username and extract email for payload and role
-    const user = await this.usersService.findOneByUsername(username);
+    // Find user by username with group and extract email for payload and role
+    const user = await this.usersService.findOneByUsername(username, true);
     const role = user.role;
     const email = user.email;
     let group_id = null;
@@ -85,8 +85,8 @@ export class AuthService {
    * @returns { access_token } - New JWT token if refresh is successful
    */
   async refreshToken(username: string): Promise<{ access_token: string }> {
-    // Find user by username and extract email for payload
-    const user = await this.usersService.findOneByUsername(username);
+    // Find user without group by username and extract email for payload
+    const user = await this.usersService.findOneByUsername(username, false);
 
     if (!user) {
       throw new BadRequestException('No such username');
@@ -125,7 +125,7 @@ export class AuthService {
    */
   async validatePassword(username: string, plainTextPassword: string): Promise<boolean> {
     // Find user by username
-    const user = await this.usersService.findOneByUsername(username);
+    const user = await this.usersService.findOneByUsername(username, false);
 
     // If user not found, return invalid username
     if (!user) {

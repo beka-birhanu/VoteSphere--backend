@@ -16,8 +16,7 @@ export class CreateUserDto {
   })
   @IsNotEmpty({ message: 'Username cannot be empty' })
   @Matches(/^[a-zA-Z0-9_.]+$/, {
-    message:
-      'Username must contain only letters, numbers, periods, and underscores',
+    message: 'Username must contain only letters, numbers, periods, and underscores',
   })
   @Length(3, 20, { message: 'Username must be between 3 and 20 characters' })
   username: string;
@@ -30,6 +29,6 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty({ message: 'role cannot be empty' })
-  @IsIn(['Admin', 'user'], { message: 'Role must be either "Admin" or "user"' })
+  @IsIn(['Admin', 'User'], { message: 'Role must be either "Admin" or "User"' })
   role: string;
 }

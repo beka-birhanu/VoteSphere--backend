@@ -25,7 +25,7 @@ export class GroupService {
    */
   async createGroup(createGroupDto: CreateGroupDto): Promise<GetGroupDto> {
     // Find the admin user based on the provided username
-    const adminUser = await this.usersService.findOneByUsername(createGroupDto.adminUsername);
+    const adminUser = await this.usersService.findOneByUsername(createGroupDto.adminUsername, true);
 
     // If admin user doesn't exist, throw NotFoundException
     if (!adminUser) {
@@ -33,8 +33,7 @@ export class GroupService {
     }
 
     // Check if the admin already has a group, if yes, throw ConflictException
-    const existingGroup = await this.findOneByAdminUsername(createGroupDto.adminUsername);
-    if (existingGroup) {
+    if (adminUser.group) {
       throw new ConflictException('Admin can create only one group.');
     }
 
@@ -101,7 +100,7 @@ export class GroupService {
    * @throws {ConflictException} - If the admin does not have a group, the admin is not an admin for the specified group, the new member is already an admin, or the new member already belongs to a group.
    */
   async addMemberToGroup(newMemberUsername: string, adminUsername: string, groupId: string): Promise<string> {
-    const admin = await this.usersService.findOneByUsernameWithGroup(adminUsername);
+    const admin = await this.usersService.findOneByUsername(adminUsername, true);
     const group = admin.group;
 
     // If the admin don't have a group
@@ -114,7 +113,7 @@ export class GroupService {
       throw new UnauthorizedException('current user is not admin for the requested group');
     }
 
-    const newMember = await this.usersService.findOneByUsernameWithGroup(newMemberUsername);
+    const newMember = await this.usersService.findOneByUsername(newMemberUsername, true);
 
     if (!newMember) {
       throw new NotFoundException('Invalid username');
@@ -148,7 +147,7 @@ export class GroupService {
    * @throws {BadRequestException} - If the banned member is not a member of the provided group.
    */
   async removeMemberFromGroup(bannedMemberUsername: string, adminUsername: string, groupId: string): Promise<string> {
-    const admin = await this.usersService.findOneByUsernameWithGroup(adminUsername);
+    const admin = await this.usersService.findOneByUsername(adminUsername, true);
     const group = admin.group;
 
     // If the admin don't have a group
@@ -161,7 +160,7 @@ export class GroupService {
       throw new UnauthorizedException('current user is not admin for the requested group');
     }
 
-    const bannedMember = await this.usersService.findOneByUsernameWithGroup(bannedMemberUsername);
+    const bannedMember = await this.usersService.findOneByUsername(bannedMemberUsername, true);
 
     if (!bannedMember) {
       throw new NotFoundException('Invalid member username');
