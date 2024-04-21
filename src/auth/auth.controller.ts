@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignInUserDto } from './dtos/signInUserDto.dto';
@@ -6,6 +6,7 @@ import { LocalAuthGuard } from './guards/localAuth.guard';
 import { RefreshJwtGuard } from './guards/refreshJwtToken.guard';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
 import { RefreshTokenDto } from './dtos/refreshTokenDto.dto';
+import { SignInResponseDto } from './dtos/signInResponseDto.dto';
 import { SignOutUserDto } from './dtos/signOutUserDto.dto';
 
 @ApiTags('auth')
@@ -17,6 +18,7 @@ export class AuthController {
   /**
    * Sign up a new user.
    * @param createUserDto - User's sign-up information
+   * @returns {SignInResponseDto} - Object containing user details and tokens upon successful sign-up
    * @throws {ConflictException} if a user with the same username or email already exists
    * @throws {BadRequestException} if the password is not strong enough
    */
@@ -36,14 +38,14 @@ export class AuthController {
     status: 400,
     description: 'Bad Request: The password provided is not strong enough.',
   })
-  async signUpUser(@Body() createUserDto: CreateUserDto) {
+  async signUpUser(@Body() createUserDto: CreateUserDto): Promise<SignInResponseDto> {
     return this.authService.signUp(createUserDto);
   }
 
   /**
    * Sign in a user.
    * @param signInDto - User's sign-in information
-   * @returns {Object} - Object containing user details and tokens upon successful sign-in
+   * @returns {SignInResponseDto} - Object containing user details and tokens upon successful sign-in
    * @throws {UnauthorizedException} if the provided username is invalid
    */
   @UseGuards(LocalAuthGuard)
@@ -59,7 +61,7 @@ export class AuthController {
     status: 401,
     description: 'Unauthorized: Invalid username or password',
   })
-  async signIn(@Body() signInDto: SignInUserDto) {
+  async signIn(@Body() signInDto: SignInUserDto): Promise<SignInResponseDto> {
     return this.authService.signIn(signInDto.username);
   }
 
@@ -86,7 +88,7 @@ export class AuthController {
     status: 400,
     description: 'Bad Request: Invalid username provided.',
   })
-  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{ access_token: string }> {
     return this.authService.refreshToken(refreshTokenDto.username);
   }
 
@@ -114,7 +116,7 @@ export class AuthController {
     status: 400,
     description: 'Bad Request: Provided token in the body does not match the token in the header',
   })
-  async signOut(@Body() signOutDto: SignOutUserDto) {
+  async signOut(@Body() signOutDto: SignOutUserDto): Promise<boolean> {
     return this.authService.revokeToken(signOutDto);
   }
 }
