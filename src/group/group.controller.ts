@@ -55,7 +55,7 @@ export class GroupController {
   /**
    * Get members of a group.
    * @param groupId - ID of the group
-   * @returns {{username, email}[]} - Array containing the list of members
+   * @returns {{username, email, is_admin}[]} - Array containing the list of members
    * @throws {NotFoundException} if the provided group ID is invalid
    */
   @Roles(['Admin', 'User'])
@@ -67,14 +67,14 @@ export class GroupController {
   })
   @ApiResponse({ status: 404, description: 'Not Found: The provided group ID is invalid.' })
   // get members
-  async getMembers(@Param('groupId') groupId: string): Promise<{ username: string; email: string }[]> {
+  async getMembers(@Param('groupId') groupId: string): Promise<{ username: string; email: string; is_admin: boolean }[]> {
     const group = await this.groupService.findGroupById(groupId);
     // check the user is member of the group(not implemented)
     if (!group) {
       throw new NotFoundException('Invalid group ID');
     }
 
-    return this.groupService.findMembers(groupId);
+    return this.groupService.getMembers(groupId);
   }
 
   /**
@@ -96,7 +96,7 @@ export class GroupController {
   @ApiResponse({ status: 401, description: 'Unauthorized: Current user is not admin for the requested group' })
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to add members' })
   // add a member
-  async addMemberToGroup(@Body('username') username: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
+  async addMemberToGroup(@Body('username') newMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
     const authorizationHeader = request.headers['authorization'] as string;
     const token = authorizationHeader.split(' ')[1];
 
@@ -104,33 +104,7 @@ export class GroupController {
       secret: `${process.env.JWT_SECRET}`,
     }).username;
 
-    const group = await this.groupService.findGroupByAdminUsername(adminUsername);
-
-    if (!group) {
-      throw new NotFoundException('Admins must create a group before attempting to add members');
-    }
-
-    if (group.id !== groupId) {
-      throw new UnauthorizedException('current user is not admin for the requested group');
-    }
-
-    const user = await this.usersService.findOneByUsername(username);
-
-    if (!user) {
-      throw new NotFoundException('Invalid username');
-    }
-
-    if (user.role === 'Admin') {
-      throw new ConflictException('There can only be one admin per group');
-    }
-
-    const userHasGroup = await this.usersService.userHasGroup(username);
-
-    if (userHasGroup) {
-      throw new ConflictException(`User '${user.username}' already belongs to a group.`);
-    }
-
-    return this.groupService.addMemberToGroup(user, group);
+    return this.groupService.addMemberToGroup(newMemberUsername, adminUsername, groupId);
   }
 
   /**
@@ -152,7 +126,7 @@ export class GroupController {
   @ApiResponse({ status: 401, description: 'Unauthorized: User does not have permission for the requested group' })
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to remove members' })
   // remove a member
-  async removeMemberFromGroup(@Body('username') username: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
+  async removeMemberFromGroup(@Body('username') bannedMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
     const authorizationHeader = request.headers['authorization'] as string;
     const token = authorizationHeader.split(' ')[1];
 
@@ -160,26 +134,6 @@ export class GroupController {
       secret: `${process.env.JWT_SECRET}`,
     }).username;
 
-    const group = await this.groupService.findGroupByAdminUsername(adminUsername);
-
-    if (!group) {
-      throw new NotFoundException('Admins must create a group before attempting to remove members');
-    }
-
-    if (group.id != groupId) {
-      throw new UnauthorizedException('user dont have permission for the requested group');
-    }
-
-    const user = await this.usersService.findOneByUsernameWithGroup(username);
-
-    if (!user) {
-      throw new NotFoundException('Invalid username');
-    }
-
-    if (user.role === 'Admin') {
-      throw new BadRequestException('Admins can not leave there own group');
-    }
-
-    return await this.groupService.removeMemberFromGroup(user, group);
+    return this.groupService.removeMemberFromGroup(bannedMemberUsername, adminUsername, groupId);
   }
 }
