@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 import { PollDto } from './pollDto.dto';
 
-export class CreatePollDto {
+export class AddPollDto {
   @IsNotEmpty({ message: 'Admins username is required' })
   @IsString({ message: 'username must be a string' })
   adminUsername: string;
