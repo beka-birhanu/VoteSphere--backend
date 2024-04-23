@@ -1,11 +1,10 @@
-import { Body, Controller, Get, Param, Post, UseGuards, Req, NotFoundException, Delete, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, Req, Delete, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiResponse, ApiBearerAuth, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBody } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtGuard } from 'src/auth/guards/jwtAuth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { CreateGroupDto } from './dtos/createGroupDto.dto';
 import { GroupService } from './group.service';
-import { JwtService } from '@nestjs/jwt';
 import { GetGroupDto } from './dtos/getGroupDto.dto';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
@@ -113,7 +112,11 @@ export class GroupController {
   @ApiResponse({ status: 401, description: 'Unauthorized: User does not have permission for the requested group' })
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to remove members' })
   //
-  async removeMemberFromGroup(@Body('username') bannedMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
+  async removeMemberFromGroup(
+    @Body('username') bannedMemberUsername: string,
+    @Param('groupId') groupId: string,
+    @Req() request: Request,
+  ): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
     const adminUsername = this.authService.decodeToken(token)?.username;
 

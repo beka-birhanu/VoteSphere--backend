@@ -204,4 +204,17 @@ export class GroupService {
       where: { id: groupId }, // Query based on group ID
     });
   }
+
+  /**
+   * Checks if a user with the given username belongs to the specified group.
+   * @param {string} username - The username of the user to check.
+   * @param {string} groupId - The ID of the group to check membership against.
+   * @returns {Promise<boolean>} A promise that resolves to true if the user belongs to the group, or false otherwise.
+   */
+  async belongsTo(username: string, groupId: string): Promise<boolean> {
+    const user = await this.usersService.findOneByUsername(username, true);
+
+    // Check if the user exists and if the user's group ID matches the specified group ID
+    return !!user && user.group.id === groupId;
+  }
 }
