@@ -144,4 +144,22 @@ export class UsersService {
     // Return true if user is found (email is used), otherwise return false
     return !!user;
   }
+
+  /**
+   * Checks if a user with the given username has voted on the specified poll.
+   * @param {string} username - The username of the user to check.
+   * @param {string} pollID - The ID of the poll to check for votes.
+   * @returns {Promise<boolean>} A promise that resolves to true if the user has voted on the poll, or false otherwise.
+   */
+  async hasVotedOn(username: string, pollID: string): Promise<boolean> {
+    // Query to check if the user has voted on the specified poll
+    const userHasVoted = !!(await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.votedPolls', 'votedPolls')
+      .where('user.username = :username', { username })
+      .andWhere('votedPolls.id = :pollID', { pollID })
+      .getOne());
+
+    return userHasVoted;
+  }
 }
