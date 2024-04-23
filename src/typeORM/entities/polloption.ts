@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Poll } from './poll';
 
 @Entity({ name: 'options' })
@@ -20,7 +14,9 @@ export class PollOption {
 
   @ManyToOne(() => Poll, (poll) => poll.options, {
     nullable: false,
+    eager: false,
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'poll_id' })
   poll: Poll;

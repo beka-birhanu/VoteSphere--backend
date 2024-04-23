@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { PollOption } from './polloption';
 import { Group } from './group';
 
@@ -23,7 +16,7 @@ export class Poll {
   @OneToMany(() => PollOption, (pollOption) => pollOption.poll)
   options: PollOption[];
 
-  @ManyToOne(() => Group, (group) => group.polls, { nullable: false })
+  @ManyToOne(() => Group, (group) => group.polls, { nullable: false, eager: false, cascade: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'group_id' })
   group: Group;
 }
