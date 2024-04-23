@@ -13,11 +13,6 @@ import { User } from 'src/typeORM/entities/user';
 @Module({
   controllers: [PollController],
   providers: [PollService],
-  imports: [
-    GroupModule,
-    UsersModule,
-    AuthModule,
-    TypeOrmModule.forFeature([Group, Poll, PollOption, User]),
-  ],
+  imports: [GroupModule, UsersModule, AuthModule, TypeOrmModule.forFeature([Group, Poll, PollOption, User])],
 })
 export class PollModule {}
