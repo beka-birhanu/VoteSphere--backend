@@ -10,6 +10,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { Request } from 'express';
 import { STATUS_CODES } from 'http';
 import { GroupService } from 'src/group/group.service';
+import { PollDtoResponse } from './dtos/addPollResponseDto.dto';
 
 @ApiTags('polls')
 @Controller('polls')
@@ -34,9 +35,9 @@ export class PollController {
   @ApiOperation({ summary: 'Add Poll', description: 'Create a new poll' })
   @ApiBearerAuth()
   @ApiBody({ type: AddPollDto })
-  @ApiResponse({ status: 201, description: 'Created', type: Poll })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Not Found' })
+  @ApiResponse({ status: 201, description: 'Created', type: PollDtoResponse })
+  @ApiResponse({ status: 401, description: 'Unauthorized, if the user lacks necessary permissions.' })
+  @ApiResponse({ status: 404, description: 'Not Found, if the admin does not have a group.' })
   //
   async addPoll(@Req() request: Request, @Body() addPollDto: AddPollDto): Promise<Poll> {
     const token = request.headers.authorization.split(' ')[1];
