@@ -59,7 +59,10 @@ export class GroupController {
   @ApiOperation({ summary: 'Get Members', description: 'Get members of a group. Requires Admin or User role.' })
   @ApiOkResponse({
     description: 'Returns the list of members.',
-    schema: { type: 'array', items: { type: 'object', properties: { username: { type: 'string' }, email: { type: 'string' } } } },
+    schema: {
+      type: 'array',
+      items: { type: 'object', properties: { username: { type: 'string' }, email: { type: 'string' }, isAdmin: { type: 'boolean' } } },
+    },
   })
   @ApiResponse({ status: 404, description: 'Not Found: The provided group ID is invalid.' })
   //
