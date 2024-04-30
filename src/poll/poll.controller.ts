@@ -10,7 +10,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { Request } from 'express';
 import { STATUS_CODES } from 'http';
 import { GroupService } from 'src/group/group.service';
-import { PollDtoResponse } from './dtos/addPollResponseDto.dto';
+import { PollResponseDto } from './dtos/pollResponseDto.dto';
 
 @ApiTags('polls')
 @Controller('polls')
@@ -35,7 +35,7 @@ export class PollController {
   @ApiOperation({ summary: 'Add Poll', description: 'Create a new poll' })
   @ApiBearerAuth()
   @ApiBody({ type: AddPollDto })
-  @ApiResponse({ status: 201, description: 'Created', type: PollDtoResponse })
+  @ApiResponse({ status: 201, description: 'Created', type: PollResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized, if the user lacks necessary permissions.' })
   @ApiResponse({ status: 404, description: 'Not Found, if the admin does not have a group.' })
   //
@@ -130,7 +130,7 @@ export class PollController {
   @ApiOperation({ summary: 'Vote on Poll', description: 'Vote on a poll by ID with the specified option' })
   @ApiBearerAuth()
   @ApiParam({ name: 'pollId', type: 'string' })
-  @ApiResponse({ status: 200, description: 'OK', type: Poll })
+  @ApiResponse({ status: 200, description: 'OK', type: PollResponseDto })
   async vote(
     @Req() request: Request,
     @Param('pollId') pollId: string,
@@ -164,7 +164,7 @@ export class PollController {
   @ApiOperation({ summary: 'Get Polls', description: 'Get polls by specifying a group ID' })
   @ApiBearerAuth()
   @ApiQuery({ name: 'groupId', type: 'string' })
-  @ApiResponse({ status: 200, description: 'OK', type: [Poll] })
+  @ApiResponse({ status: 200, description: 'OK', type: [PollResponseDto] })
   async getPolls(@Req() request: Request, @Query('groupId') groupId: string, @Body('username') username: string): Promise<Poll[]> {
     // Extract username from JWT token
     const token = request.headers.authorization.split(' ')[1];
