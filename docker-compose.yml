@@ -1,10 +1,10 @@
-version: '3.8'
+version: '3.9'
 
 services:
   db:
     image: postgres:13
     ports:
-      - "8001:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: cBeYjAqy@8F}gc1H1545~!
@@ -12,18 +12,20 @@ services:
     networks:
       - votesphere-networks
 
-  test-db:
-    image: postgres:13
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: votesphere
     ports:
-      - "8000:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: cBeYjAqy@8F}gc1H1545~!-test
-      POSTGRES_DB: votesphere
+      - '9000:9000'
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
     networks:
       - votesphere-networks
 
 networks:
   votesphere-networks:
     driver: bridge
-
