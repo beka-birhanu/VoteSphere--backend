@@ -54,7 +54,7 @@ Ensure you have the following installed on your machine:
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/votesphere.git
+git clone git@github.com:beka-birhanu/VoteSphere--backend.git
 cd votesphere
 ```
 
