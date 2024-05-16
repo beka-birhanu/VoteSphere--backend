@@ -11,20 +11,15 @@ import { RolesGuard } from './guards/role.guard';
 @ApiTags('auth')
 @Module({
   imports: [
-    UsersModule, // Import the UsersModule for user management
+    UsersModule,
     JwtModule.register({
       global: true,
       secret: `${process.env.JWT_SECRET}`,
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  providers: [
-    AuthService, // Authentication service
-    LocalStrategy, // Local strategy for username/password authentication
-    JwtStrategy, // JWT strategy for token validation
-    RolesGuard, // Guard for role-based access control
-  ],
-  controllers: [AuthController], // Controller for authentication endpoints
-  exports: [AuthService, RolesGuard], // Export AuthService and RolesGuard for use in other modules
+  providers: [AuthService, LocalStrategy, JwtStrategy, RolesGuard],
+  controllers: [AuthController],
+  exports: [AuthService, RolesGuard],
 })
 export class AuthModule {}
