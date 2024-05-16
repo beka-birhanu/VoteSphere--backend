@@ -15,14 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  /**
-   * Validate the JWT payload.
-   * @param payload - JWT payload
-   * @returns User information extracted from the JWT
-   * @throws UnauthorizedException if the payload is invalid
-   */
   async validate(payload: any) {
-    // Ensure the payload is present and contains required fields
     if (!payload || !payload.email || !payload.username) {
       throw new UnauthorizedException();
     }
