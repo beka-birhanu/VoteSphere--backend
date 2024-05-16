@@ -15,13 +15,6 @@ import { SignOutUserDto } from './dtos/signOutUserDto.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  /**
-   * Sign up a new user.
-   * @param createUserDto - User's sign-up information
-   * @returns {SignInResponseDto} - Object containing user details and tokens upon successful sign-up
-   * @throws {ConflictException} if a user with the same username or email already exists
-   * @throws {BadRequestException} if the password is not strong enough
-   */
   @Post('signup')
   @ApiOperation({
     summary: 'Sign Up',
@@ -42,12 +35,6 @@ export class AuthController {
     return this.authService.signUp(createUserDto);
   }
 
-  /**
-   * Sign in a user.
-   * @param signInDto - User's sign-in information
-   * @returns {SignInResponseDto} - Object containing user details and tokens upon successful sign-in
-   * @throws {UnauthorizedException} if the provided username is invalid
-   */
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   @ApiOperation({
@@ -65,12 +52,6 @@ export class AuthController {
     return this.authService.signIn(signInDto.username);
   }
 
-  /**
-   * Refreshes the user's authentication token.
-   * @param refreshTokenDto - User's refresh token data
-   * @returns {Object} - Object containing a new access token
-   * @throws {UnauthorizedException} if the provided refresh token is invalid
-   */
   @UseGuards(RefreshJwtGuard)
   @Get('refresh-token')
   @ApiOperation({
@@ -92,14 +73,6 @@ export class AuthController {
     return this.authService.refreshToken(refreshTokenDto.username);
   }
 
-  /**
-   * Revokes the user's JWT token.
-   * @param signOutDto - User's sign-out information
-   * @returns {success} - Indicates successful sign-out
-   * @throws {UnauthorizedException} if the refresh token is invalid
-   * @throws {BadRequestException} if the provided token in the body does not match the token in the header
-   */
-  @UseGuards(RefreshJwtGuard)
   @Patch('signout')
   @ApiOperation({
     summary: 'Sign Out',
