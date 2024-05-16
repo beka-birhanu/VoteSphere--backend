@@ -17,14 +17,6 @@ export class GroupController {
     private readonly groupService: GroupService,
   ) {}
 
-  /**
-   * Create a new group.
-   * @param createGroupDto - Group's information
-   * @returns {Object} - Object containing the created group details
-   * @throws {NotFoundException} if the requesting user does not exist
-   * @throws {ConflictException} if the requesting admin already has a group
-   * @throws {UnauthorizedException} if the user is not authorized to perform the operation
-   */
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
   @Post()
@@ -40,7 +32,6 @@ export class GroupController {
     const token = request.headers.authorization.split(' ')[1];
     const header_adminUsername = this.authService.decodeToken(token)?.username;
 
-    // if username in token and body don't match throw unauthorized error
     if (createGroupDto.adminUsername !== header_adminUsername) {
       throw new UnauthorizedException('User lacks necessary permissions');
     }
@@ -48,12 +39,6 @@ export class GroupController {
     return this.groupService.createGroup(createGroupDto);
   }
 
-  /**
-   * Get members of a group.
-   * @param groupId - ID of the group
-   * @returns {{username, email, is_admin}[]} - Array containing the list of members
-   * @throws {NotFoundException} if the provided group ID is invalid
-   */
   @Roles(['Admin', 'User'])
   @Get(':groupId/members')
   @ApiOperation({ summary: 'Get Members', description: 'Get members of a group. Requires Admin or User role.' })
@@ -70,15 +55,6 @@ export class GroupController {
     return this.groupService.getMembers(groupId);
   }
 
-  /**
-   * Add Member to Group.
-   * @param username - The username of the user to be added
-   * @param groupId - ID of the group
-   * @param request - The request object
-   * @returns {string} - Message indicating success
-   * @throws {NotFoundException} if the provided username is invalid
-   * @throws {UnauthorizedException} if the current user is not the admin of the requested group
-   */
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
   @Post(':groupId/members')
@@ -96,15 +72,6 @@ export class GroupController {
     return this.groupService.addMemberToGroup(newMemberUsername, adminUsername, groupId);
   }
 
-  /**
-   * Remove Member from Group.
-   * @param username - The username of the user to be removed
-   * @param groupId - ID of the group
-   * @param request - The request object
-   * @returns {string} - Message indicating success
-   * @throws {NotFoundException} if the provided username is invalid
-   * @throws {UnauthorizedException} if the user doesn't have permission for the requested group
-   */
   @UseGuards(RolesGuard, JwtGuard)
   @Roles(['Admin'])
   @Delete(':groupId/members')
