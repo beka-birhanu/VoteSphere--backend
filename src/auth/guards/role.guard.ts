@@ -1,7 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Roles } from '../decorators/roles.decorator';
-import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -18,15 +17,12 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Get the roles assigned to the route handler
-    const rolesRequired = this.reflector.get(Roles, context.getHandler());
+    const requiredRoles = this.reflector.get(Roles, context.getHandler());
 
-    // If no roles are specified, access is granted
-    if (!rolesRequired) {
+    if (!requiredRoles) {
       return true;
     }
 
-    // Extract token from request headers
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeaders(request);
 
@@ -36,16 +32,19 @@ export class RolesGuard implements CanActivate {
 
     const decodedToken = this.authService.decodeToken(token);
 
-    // If token verification fails, access is denied
     if (!decodedToken) {
       return false;
     }
 
     const username = decodedToken.username;
-    const userRoles = await this.userService.getUserRole(username);
+    const userRole = await this.userService.getUserRole(username);
 
-    // Check if user roles match the required roles
-    return this.matchRoles(rolesRequired, userRoles);
+    if (this.matchRoles(requiredRoles, userRole)) {
+      return true;
+    } else {
+      // work hard may be you will get promoted
+      return false;
+    }
   }
 
   private extractTokenFromHeaders(request: Request): string | null {
