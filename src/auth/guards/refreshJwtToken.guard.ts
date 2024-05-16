@@ -15,7 +15,6 @@ export class RefreshJwtGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Extract token and username from request
     const request = context.switchToHttp().getRequest();
     const header_token = this.extractTokenFromHeaders(request);
     const username = request.body.username;
@@ -26,16 +25,12 @@ export class RefreshJwtGuard implements CanActivate {
 
     const decodedToken = this.authService.decodeToken(header_token);
 
-    // If token verification fails
-    // or the owner of the token dont match the requester
-    // or the token is not a refresh token, access is denied
-    if (!decodedToken || !decodedToken.username || decodedToken.username !== username || !decodedToken.role) {
+    if (!decodedToken || !decodedToken.username || !decodedToken.role) {
       return false;
     }
 
     const blackList = await this.usersService.getBlacklistToken(username);
 
-    // if the refresh token have been revoked access is denied
     if (blackList && blackList.includes(header_token)) {
       return false;
     }
