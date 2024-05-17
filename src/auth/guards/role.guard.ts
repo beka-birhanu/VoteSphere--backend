@@ -42,7 +42,7 @@ export class RolesGuard implements CanActivate {
     if (this.matchRoles(requiredRoles, userRole)) {
       return true;
     } else {
-      // work hard may be you will get promoted
+      // nah ... nah.. not you shames
       return false;
     }
   }

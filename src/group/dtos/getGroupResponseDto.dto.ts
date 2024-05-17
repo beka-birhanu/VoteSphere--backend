@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class GetGroupDto {
+export class GetGroupResponseDto {
   @IsNotEmpty({ message: 'Admins username is required' })
   @IsString({ message: 'Username must be a string' })
   @ApiProperty({ example: 'beka_birhanu', description: 'Admin username' })

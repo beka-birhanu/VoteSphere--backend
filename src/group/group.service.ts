@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { Group } from './../typeORM/entities/group';
 import { CreateGroupDto } from './dtos/createGroupDto.dto';
 import { UsersService } from 'src/users/users.service';
-import { GetGroupDto } from './dtos/getGroupDto.dto';
+import { GetGroupResponseDto } from './dtos/getGroupResponseDto.dto';
 import { STATUS_CODES } from 'http';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class GroupService {
     private readonly usersService: UsersService,
   ) {}
 
-  async createGroup(createGroupDto: CreateGroupDto): Promise<GetGroupDto> {
+  async createGroup(createGroupDto: CreateGroupDto): Promise<GetGroupResponseDto> {
     const loadGroup = true;
     const adminUser = await this.usersService.findOneByUsername(createGroupDto.adminUsername, loadGroup);
 

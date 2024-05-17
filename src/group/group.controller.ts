@@ -5,7 +5,7 @@ import { JwtGuard } from 'src/auth/guards/jwtAuth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { CreateGroupDto } from './dtos/createGroupDto.dto';
 import { GroupService } from './group.service';
-import { GetGroupDto } from './dtos/getGroupDto.dto';
+import { GetGroupResponseDto } from './dtos/getGroupResponseDto.dto';
 import { Request } from 'express';
 import { AuthService } from 'src/auth/auth.service';
 
@@ -23,12 +23,12 @@ export class GroupController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create Group', description: 'Create a new group. Requires Admin role.' })
   @ApiBody({ type: CreateGroupDto, description: 'Group information including admin username and group name.' })
-  @ApiCreatedResponse({ description: 'Group created successfully.', type: GetGroupDto })
+  @ApiCreatedResponse({ description: 'Group created successfully.', type: GetGroupResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized: User lacks necessary permissions.' })
   @ApiResponse({ status: 404, description: 'Not Found: The requesting user does not exist.' })
   @ApiResponse({ status: 409, description: 'Conflict: The requesting admin already has a group.' })
   //
-  async createGroup(@Req() request: Request, @Body() createGroupDto: CreateGroupDto): Promise<GetGroupDto> {
+  async createGroup(@Req() request: Request, @Body() createGroupDto: CreateGroupDto): Promise<GetGroupResponseDto> {
     const token = request.headers.authorization.split(' ')[1];
     const header_adminUsername = this.authService.decodeToken(token)?.username;
 
