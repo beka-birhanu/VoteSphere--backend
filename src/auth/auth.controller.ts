@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignInUserDto } from './dtos/signInUserDto.dto';
 import { LocalAuthGuard } from './guards/localAuth.guard';
 import { RefreshJwtGuard } from './guards/refreshJwtToken.guard';
+import { Request } from 'express';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
-import { RefreshTokenDto } from './dtos/refreshTokenDto.dto';
 import { SignInResponseDto } from './dtos/signInResponseDto.dto';
 import { SignOutUserDto } from './dtos/signOutUserDto.dto';
 
@@ -69,8 +69,11 @@ export class AuthController {
     status: 400,
     description: 'Bad Request: Invalid username provided.',
   })
-  async refreshToken(@Body() refreshTokenDto: RefreshTokenDto): Promise<{ access_token: string }> {
-    return this.authService.refreshToken(refreshTokenDto.username);
+  async refreshToken(@Req() request: Request): Promise<{ access_token: string }> {
+    const token = request.headers.authorization.split(' ')[1];
+    const username = this.authService.decodeToken(token)?.username;
+
+    return this.authService.refreshToken(username);
   }
 
   @Patch('signout')
