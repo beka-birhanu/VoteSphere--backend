@@ -50,7 +50,7 @@ export class GroupService {
     }
   }
 
-  async getMembers(groupId: string): Promise<{ username: string; email: string; is_admin: boolean }[]> {
+  async getMembers(groupId: string): Promise<{ username: string; email: string; isAdmin: boolean }[]> {
     const group = await this.findOneById(groupId);
 
     if (!group) {
@@ -62,7 +62,7 @@ export class GroupService {
     const transformedMembers = members.map((user) => ({
       username: user.username,
       email: user.email,
-      is_admin: user.role === 'Admin' ? true : false,
+      isAdmin: user.role === 'Admin' ? true : false,
     }));
 
     return transformedMembers;

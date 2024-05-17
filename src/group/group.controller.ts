@@ -51,7 +51,7 @@ export class GroupController {
   })
   @ApiResponse({ status: 404, description: 'Not Found: The provided group ID is invalid.' })
   //
-  async getMembers(@Param('groupId') groupId: string): Promise<{ username: string; email: string; is_admin: boolean }[]> {
+  async getMembers(@Param('groupId') groupId: string): Promise<{ username: string; email: string; isAdmin: boolean }[]> {
     return this.groupService.getMembers(groupId);
   }
 
