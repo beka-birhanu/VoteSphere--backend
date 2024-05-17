@@ -6,8 +6,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  const config = new DocumentBuilder().setTitle('Your API Title').setDescription('Your API Description').setVersion('1.0').addTag('auth').build();
 
+  const config = new DocumentBuilder()
+    .setTitle('Vote-Sphere API')
+    .setDescription('API documentation for the Vote-Sphere(vote managing app), providing endpoints for group and poll.')
+    .setVersion('1.0')
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
