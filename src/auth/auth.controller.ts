@@ -7,7 +7,6 @@ import { RefreshJwtGuard } from './guards/refreshJwtToken.guard';
 import { Request } from 'express';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
 import { SignInResponseDto } from './dtos/signInResponseDto.dto';
-import { SignOutUserDto } from './dtos/signOutUserDto.dto';
 
 @ApiTags('auth')
 @ApiBearerAuth()
@@ -92,7 +91,9 @@ export class AuthController {
     status: 400,
     description: 'Bad Request: Provided token in the body does not match the token in the header',
   })
-  async signOut(@Body() signOutDto: SignOutUserDto): Promise<string> {
-    return this.authService.revokeToken(signOutDto);
+  async signOut(@Req() request: Request): Promise<string> {
+    const token = request.headers.authorization.split(' ')[1];
+
+    return this.authService.revokeToken(token);
   }
 }

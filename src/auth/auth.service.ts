@@ -5,7 +5,6 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dtos/createUserDto.dto';
 import * as zxcvbn from 'zxcvbn';
 import { ApiTags } from '@nestjs/swagger';
-import { SignOutUserDto } from './dtos/signOutUserDto.dto';
 import { SignInResponseDto } from './dtos/signInResponseDto.dto';
 import { STATUS_CODES } from 'http';
 
@@ -79,17 +78,16 @@ export class AuthService {
     return { access_token };
   }
 
-  async revokeToken(signOutDto: SignOutUserDto): Promise<string> {
-    const { username, token } = signOutDto;
+  async revokeToken(token: string): Promise<string> {
     const decodedToken = await this.decodeToken(token);
+    const username = decodedToken.username;
 
-    if (decodedToken && decodedToken.role) {
+    try {
       await this.usersService.addBlackListToken(username, token);
-
       return STATUS_CODES.success;
+    } catch {
+      throw InternalServerErrorException;
     }
-    // IMPORTANT not correct
-    throw new BadRequestException('Provided token does not match the token in the header');
   }
 
   async validatePassword(username: string, plainTextPassword: string): Promise<boolean> {
