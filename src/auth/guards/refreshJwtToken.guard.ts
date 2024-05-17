@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UsersService } from 'src/users/users.service';
 import { Request } from 'express';
@@ -29,9 +28,9 @@ export class RefreshJwtGuard implements CanActivate {
       return false;
     }
 
-    const blackList = await this.usersService.getBlacklistToken(username);
+    const tokenBlackList = await this.usersService.getBlacklistToken(username);
 
-    if (blackList && blackList.includes(header_token)) {
+    if (tokenBlackList && tokenBlackList.includes(header_token)) {
       return false;
     }
 
