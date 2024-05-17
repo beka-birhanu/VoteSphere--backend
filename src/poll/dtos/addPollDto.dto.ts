@@ -4,11 +4,6 @@ import { Type } from 'class-transformer';
 import { PollDto } from './pollDto.dto';
 
 export class AddPollDto {
-  @ApiProperty({ example: 'beka_birhanu', description: 'Admins username' })
-  @IsNotEmpty({ message: 'Admins username is required' })
-  @IsString({ message: 'Username must be a string' })
-  adminUsername: string;
-
   @ApiProperty({
     example: { question: 'What is your favorite color?', options: ['Red', 'Blue', 'Green'] },
     description: 'Poll object containing question and options',

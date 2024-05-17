@@ -33,13 +33,9 @@ export class PollController {
   //
   async addPoll(@Req() request: Request, @Body() addPollDto: AddPollDto): Promise<Poll> {
     const token = request.headers.authorization.split(' ')[1];
-    const headerAdminUsername = this.authService.decodeToken(token)?.username;
+    const adminUsername = this.authService.decodeToken(token)?.username;
 
-    if (addPollDto.adminUsername !== headerAdminUsername) {
-      throw new UnauthorizedException('The token sent does not belong to the user');
-    }
-
-    return this.pollService.addPoll(addPollDto);
+    return this.pollService.addPoll(addPollDto, adminUsername);
   }
 
   @UseGuards(RolesGuard, JwtGuard)
@@ -53,13 +49,9 @@ export class PollController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Not Found' })
   //
-  async deletePoll(@Req() request: Request, @Param('pollId') pollId: string, @Body('adminUsername') adminUsername: string): Promise<string> {
+  async deletePoll(@Req() request: Request, @Param('pollId') pollId: string): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
-    const headerAdminUsername = this.authService.decodeToken(token)?.username;
-
-    if (adminUsername !== headerAdminUsername) {
-      throw new UnauthorizedException('The token sent does not belong to the user');
-    }
+    const adminUsername = this.authService.decodeToken(token)?.username;
 
     return this.pollService.removePoll(pollId, adminUsername);
   }
@@ -71,13 +63,9 @@ export class PollController {
   @ApiBearerAuth()
   @ApiParam({ name: 'pollId', type: 'string' })
   @ApiResponse({ status: 200, description: 'OK' })
-  async closePoll(@Req() request: Request, @Param('pollId') pollId: string, @Body('adminUsername') adminUsername: string): Promise<string> {
+  async closePoll(@Req() request: Request, @Param('pollId') pollId: string): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
-    const headerAdminUsername = this.authService.decodeToken(token)?.username;
-
-    if (adminUsername !== headerAdminUsername) {
-      throw new UnauthorizedException('The token sent does not belong to the user');
-    }
+    const adminUsername = this.authService.decodeToken(token)?.username;
 
     await this.pollService.closePoll(pollId, adminUsername);
 
@@ -91,18 +79,9 @@ export class PollController {
   @ApiBearerAuth()
   @ApiParam({ name: 'pollId', type: 'string' })
   @ApiResponse({ status: 200, description: 'OK', type: PollResponseDto })
-  async vote(
-    @Req() request: Request,
-    @Param('pollId') pollId: string,
-    @Query('optionId') optionId: string,
-    @Body('username') username: string,
-  ): Promise<Poll> {
+  async vote(@Req() request: Request, @Param('pollId') pollId: string, @Query('optionId') optionId: string): Promise<Poll> {
     const token = request.headers.authorization.split(' ')[1];
-    const headerUsername = this.authService.decodeToken(token)?.username;
-
-    if (username !== headerUsername) {
-      throw new UnauthorizedException('The token sent does not belong to the user');
-    }
+    const username = this.authService.decodeToken(token)?.username;
 
     return await this.pollService.castVote(pollId, optionId, username);
   }
@@ -114,13 +93,9 @@ export class PollController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'groupId', type: 'string' })
   @ApiResponse({ status: 200, description: 'OK', type: [PollResponseDto] })
-  async getPolls(@Req() request: Request, @Query('groupId') groupId: string, @Body('username') username: string): Promise<Poll[]> {
+  async getPolls(@Req() request: Request, @Query('groupId') groupId: string): Promise<Poll[]> {
     const token = request.headers.authorization.split(' ')[1];
-    const headerUsername = this.authService.decodeToken(token)?.username;
-
-    if (username !== headerUsername) {
-      throw new UnauthorizedException('The token sent does not belong to the user');
-    }
+    const username = this.authService.decodeToken(token)?.username;
 
     const userBelongsToRequestedGroup = await this.groupService.belongsTo(username, groupId);
 

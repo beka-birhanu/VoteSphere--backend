@@ -19,9 +19,8 @@ export class PollService {
     private readonly usersService: UsersService,
   ) {}
 
-  async addPoll(addPollDto: AddPollDto): Promise<Poll> {
+  async addPoll(addPollDto: AddPollDto, adminUsername): Promise<Poll> {
     const {
-      adminUsername,
       groupID,
       poll: { question, options },
     } = addPollDto;
