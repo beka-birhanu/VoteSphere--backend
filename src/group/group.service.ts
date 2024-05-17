@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group } from './../typeORM/entities/group';
@@ -75,17 +68,13 @@ export class GroupService {
     return transformedMembers;
   }
 
-  async addMemberToGroup(newMemberUsername: string, adminUsername: string, groupId: string): Promise<string> {
+  async addMemberToGroup(newMemberUsername: string, adminUsername: string): Promise<string> {
     const loadGroup = true;
     const admin = await this.usersService.findOneByUsername(adminUsername, loadGroup);
     const adminsGroup = admin.group;
 
     if (!adminsGroup) {
       throw new NotFoundException('Admins must create a group before attempting to add members');
-    }
-
-    if (adminsGroup.id !== groupId) {
-      throw new UnauthorizedException('current user is not admin for the requested group');
     }
 
     const newMember = await this.usersService.findOneByUsername(newMemberUsername, loadGroup);
@@ -111,7 +100,7 @@ export class GroupService {
     return saveSuccess ? STATUS_CODES.successful : STATUS_CODES.InternalServerError;
   }
 
-  async removeMemberFromGroup(bannedMemberUsername: string, adminUsername: string, groupId: string): Promise<string> {
+  async removeMemberFromGroup(bannedMemberUsername: string, adminUsername: string): Promise<string> {
     const loadGroup = true;
     const admin = await this.usersService.findOneByUsername(adminUsername, loadGroup);
     const adminsGroup = admin.group;
@@ -120,18 +109,13 @@ export class GroupService {
       throw new NotFoundException('Admins must create a group before attempting to remove members');
     }
 
-    if (adminsGroup.id !== groupId) {
-      throw new UnauthorizedException('current user is not admin for the requested group');
-    }
-
     const bannedMember = await this.usersService.findOneByUsername(bannedMemberUsername, loadGroup);
 
     if (!bannedMember) {
       throw new NotFoundException('Invalid member username');
     }
-
     if (bannedMember.role === 'Admin') {
-      throw new ConflictException('Admins can not leave their own group');
+      throw new BadRequestException('Admins can not leave their own group');
     }
 
     if (!bannedMember.group || bannedMember.group.id != adminsGroup.id) {

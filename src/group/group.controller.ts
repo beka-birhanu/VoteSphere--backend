@@ -62,14 +62,14 @@ export class GroupController {
   @ApiBearerAuth()
   @ApiBody({ schema: { properties: { username: { type: 'string', description: 'The username of the user.', example: 'beka_birhanu' } } } })
   @ApiResponse({ status: 200, description: 'Successful operation' })
-  @ApiResponse({ status: 401, description: 'Unauthorized: Current user is not admin for the requested group' })
+  @ApiResponse({ status: 401, description: 'Unauthorized: Current user is not admin' })
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to add members' })
   //
-  async addMemberToGroup(@Body('username') newMemberUsername: string, @Param('groupId') groupId: string, @Req() request: Request): Promise<string> {
+  async addMemberToGroup(@Body('username') newMemberUsername: string, @Req() request: Request): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
     const adminUsername = this.authService.decodeToken(token)?.username;
 
-    return this.groupService.addMemberToGroup(newMemberUsername, adminUsername, groupId);
+    return this.groupService.addMemberToGroup(newMemberUsername, adminUsername);
   }
 
   @UseGuards(RolesGuard, JwtGuard)
@@ -82,14 +82,10 @@ export class GroupController {
   @ApiResponse({ status: 401, description: 'Unauthorized: User does not have permission for the requested group' })
   @ApiResponse({ status: 404, description: 'Not Found: Invalid username or admin must create a group before attempting to remove members' })
   //
-  async removeMemberFromGroup(
-    @Body('username') bannedMemberUsername: string,
-    @Param('groupId') groupId: string,
-    @Req() request: Request,
-  ): Promise<string> {
+  async removeMemberFromGroup(@Body('username') bannedMemberUsername: string, @Req() request: Request): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
     const adminUsername = this.authService.decodeToken(token)?.username;
 
-    return this.groupService.removeMemberFromGroup(bannedMemberUsername, adminUsername, groupId);
+    return this.groupService.removeMemberFromGroup(bannedMemberUsername, adminUsername);
   }
 }
