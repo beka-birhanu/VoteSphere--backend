@@ -20,6 +20,8 @@ export class PollService {
   ) {}
 
   async addPoll(addPollDto: AddPollDto, adminUsername): Promise<Poll> {
+    const loadGroup = true;
+    const loadPollOptions = true;
     const {
       groupID,
       poll: { question, options },
@@ -46,7 +48,7 @@ export class PollService {
     await this.pollOptionRepository.save(pollOptions);
     newPoll.options = pollOptions;
 
-    return newPoll;
+    return this.findOne(newPoll.id, !loadGroup, loadPollOptions);
   }
 
   async removePoll(pollId: string, adminUsername: string): Promise<string> {
