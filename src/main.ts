@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Vote-Sphere API')
-    .setDescription('API documentation for the Vote-Sphere(vote managing app), providing endpoints for group and poll.')
+    .setDescription('API documentation for the Vote-Sphere(vote managing app), providing endpoints for group and poll management.')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
