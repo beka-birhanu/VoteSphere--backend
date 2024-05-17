@@ -61,12 +61,8 @@ export class AuthController {
     description: 'Returns a new access token upon successful refresh.',
   })
   @ApiResponse({
-    status: 403,
-    description: 'Forbidden: The refresh token does not belong to the user.',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request: Invalid username provided.',
+    status: 401,
+    description: 'Unauthorized: Invalid or expired refresh token',
   })
   async refreshToken(@Req() request: Request): Promise<{ access_token: string }> {
     const token = request.headers.authorization.split(' ')[1];
@@ -86,10 +82,6 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description: 'Unauthorized: Invalid or expired refresh token',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad Request: Provided token in the body does not match the token in the header',
   })
   async signOut(@Req() request: Request): Promise<string> {
     const token = request.headers.authorization.split(' ')[1];
