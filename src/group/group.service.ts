@@ -51,6 +51,10 @@ export class GroupService {
   }
 
   async getMembers(groupId: string): Promise<{ username: string; email: string; isAdmin: boolean }[]> {
+    if (!groupId) {
+      throw new BadRequestException('Invalid group ID');
+    }
+
     const group = await this.findOneById(groupId);
 
     if (!group) {
@@ -144,7 +148,7 @@ export class GroupService {
     const loadGroup = true;
     const user = await this.usersService.findOneByUsername(username, loadGroup);
 
-    if (!user) {
+    if (!user || !user.group) {
       return false;
     }
 
