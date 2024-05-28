@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Poll } from './poll';
+import { Vote } from './vote';
 
 @Entity({ name: 'options' })
 export class PollOption {
@@ -20,4 +21,7 @@ export class PollOption {
   })
   @JoinColumn({ name: 'poll_id' })
   poll: Poll;
+
+  @ManyToOne(() => Vote, (vote) => vote.pollOption)
+  votes: Vote;
 }
