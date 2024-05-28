@@ -7,6 +7,7 @@ import { PollOption } from 'src/typeORM/entities/polloption';
 import { AddPollDto } from './dtos/addPollDto.dto';
 import { STATUS_CODES } from 'http';
 import { UsersService } from 'src/users/users.service';
+import { VoteService } from 'src/vote/vote.service';
 
 @Injectable()
 export class PollService {
@@ -15,11 +16,12 @@ export class PollService {
     private readonly pollRepository: Repository<Poll>,
     @InjectRepository(PollOption)
     private readonly pollOptionRepository: Repository<PollOption>,
+    private readonly voteService: VoteService,
     private readonly groupService: GroupService,
     private readonly usersService: UsersService,
   ) {}
 
-  async addPoll(addPollDto: AddPollDto, adminUsername): Promise<Poll> {
+  async addPoll(addPollDto: AddPollDto, adminUsername: string): Promise<Poll> {
     const loadGroup = true;
     const loadPollOptions = true;
     const {
@@ -123,7 +125,8 @@ export class PollService {
       throw new BadRequestException("Poll does not belong to the user's group.");
     }
 
-    const hasVotedOn = await this.usersService.hasVotedOn(username, pollId);
+    const hasVotedOn = await this.voteService.findOneByUserAndPoll(pollToVote, user);
+    console.log(hasVotedOn);
     if (hasVotedOn) {
       throw new BadRequestException('User has already voted on this poll.');
     }
@@ -135,9 +138,7 @@ export class PollService {
 
     selectedOption.numberOfVotes++;
     await this.pollOptionRepository.save(selectedOption);
-
-    user.votedPolls = [...(user.votedPolls || []), pollToVote];
-    await this.usersService.updateUser(user);
+    await this.voteService.addVote(pollToVote, user, selectedOption);
 
     return this.findOne(pollId, false, true);
   }
