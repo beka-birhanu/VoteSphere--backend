@@ -8,6 +8,8 @@ import { AddPollDto } from './dtos/addPollDto.dto';
 import { STATUS_CODES } from 'http';
 import { UsersService } from 'src/users/users.service';
 import { VoteService } from 'src/vote/vote.service';
+import { User } from 'src/typeORM/entities/user';
+import { Vote } from 'src/typeORM/entities/vote';
 
 @Injectable()
 export class PollService {
@@ -156,11 +158,25 @@ export class PollService {
     return this.pollRepository.findOne({ where: { id: id }, relations: relations });
   }
 
-  async getPollsByGroupId(groupId: string): Promise<Poll[]> {
-    return this.pollRepository
+  private async addVotedInfo(poll: Poll, user: User): Promise<Poll | { hasVoted: boolean; chosenOptionId: string }> {
+    const voteInfo: Vote = await this.voteService.findOneByUserAndPoll(poll, user);
+
+    if (voteInfo) {
+      return { ...poll, hasVoted: true, chosenOptionId: voteInfo.pollOption.id };
+    }
+    return { ...poll, hasVoted: false, chosenOptionId: null };
+  }
+
+  async getPollsByGroupIdForUser(groupId: string, username: string): Promise<(Poll | { hasVoted: boolean; chosenOptionId: string })[]> {
+    const loadGroup = true;
+    const polls = await this.pollRepository
       .createQueryBuilder('poll')
       .leftJoinAndSelect('poll.options', 'options')
       .where('poll.group.id = :groupId', { groupId })
       .getMany();
+
+    const user = await this.usersService.findOneByUsername(username, !loadGroup);
+
+    return Promise.all(polls.map((poll) => this.addVotedInfo(poll, user)));
   }
 }

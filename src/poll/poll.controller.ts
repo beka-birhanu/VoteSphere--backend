@@ -83,7 +83,7 @@ export class PollController {
     const token = request.headers.authorization.split(' ')[1];
     const username = this.authService.decodeToken(token)?.username;
 
-    return await this.pollService.castVote(pollId, optionId, username);
+    return this.pollService.castVote(pollId, optionId, username);
   }
 
   @UseGuards(RolesGuard, JwtGuard)
@@ -93,7 +93,7 @@ export class PollController {
   @ApiBearerAuth()
   @ApiQuery({ name: 'groupId', type: 'string' })
   @ApiResponse({ status: 200, description: 'OK', type: [PollResponseDto] })
-  async getPolls(@Req() request: Request, @Query('groupId') groupId: string): Promise<Poll[]> {
+  async getPolls(@Req() request: Request, @Query('groupId') groupId: string): Promise<(Poll | { hasVoted: boolean; chosenOptionId: string })[]> {
     const token = request.headers.authorization.split(' ')[1];
     const username = this.authService.decodeToken(token)?.username;
 
@@ -103,6 +103,6 @@ export class PollController {
       throw new UnauthorizedException('The user does not belong to the requested group');
     }
 
-    return await this.pollService.getPollsByGroupId(groupId);
+    return this.pollService.getPollsByGroupIdForUser(groupId, username);
   }
 }
