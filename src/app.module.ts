@@ -10,6 +10,7 @@ import { Group } from './typeORM/entities/group';
 import { Poll } from './typeORM/entities/poll';
 import { PollOption } from './typeORM/entities/polloption';
 import { PollModule } from './poll/poll.module';
+import { Vote } from './typeORM/entities/vote';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { PollModule } from './poll/poll.module';
       password: 'cBeYjAqy@8F}gc1H1545~!',
       database: 'votesphere',
       autoLoadEntities: true,
-      entities: [User, Group, PollOption, Poll],
+      entities: [User, Group, PollOption, Poll, Vote],
       synchronize: true,
     }),
   ],
