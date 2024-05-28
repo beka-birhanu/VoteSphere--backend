@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { Group } from './group';
 import { Poll } from './poll';
+import { Vote } from './vote';
 
 @Entity({ name: 'users' })
 export class User {
@@ -27,7 +28,6 @@ export class User {
   @JoinColumn({ name: 'group_id' })
   group: Group;
 
-  @ManyToMany(() => Poll, { nullable: true, cascade: true })
-  @JoinTable({ name: 'user_voted_polls' })
-  votedPolls: Poll[];
+  @OneToMany(() => Vote, (vote) => vote.poll)
+  votes: Vote[];
 }
