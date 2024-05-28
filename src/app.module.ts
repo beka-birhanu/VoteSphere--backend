@@ -8,7 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './typeORM/entities/user';
 import { Group } from './typeORM/entities/group';
 import { Poll } from './typeORM/entities/poll';
-import { PollOption } from './typeORM/entities/polloption';
+import { PollOption } from './typeORM/entities/pollOption';
 import { PollModule } from './poll/poll.module';
 import { Vote } from './typeORM/entities/vote';
 

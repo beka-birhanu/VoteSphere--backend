@@ -3,7 +3,7 @@ import { PollController } from './poll.controller';
 import { PollService } from './poll.service';
 import { GroupModule } from 'src/group/group.module';
 import { UsersModule } from 'src/users/users.module';
-import { PollOption } from 'src/typeORM/entities/polloption';
+import { PollOption } from 'src/typeORM/entities/pollOption';
 import { Poll } from 'src/typeORM/entities/poll';
 import { Group } from 'src/typeORM/entities/group';
 import { TypeOrmModule } from '@nestjs/typeorm';

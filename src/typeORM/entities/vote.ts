@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from './user';
 import { Poll } from './poll';
-import { PollOption } from './polloption';
+import { PollOption } from './pollOption';
 
 @Entity({ name: 'votes' })
 @Unique(['user', 'poll'])

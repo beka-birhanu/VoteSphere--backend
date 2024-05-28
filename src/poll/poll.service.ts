@@ -3,7 +3,7 @@ import { GroupService } from 'src/group/group.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Poll } from 'src/typeORM/entities/poll';
-import { PollOption } from 'src/typeORM/entities/polloption';
+import { PollOption } from 'src/typeORM/entities/pollOption';
 import { AddPollDto } from './dtos/addPollDto.dto';
 import { STATUS_CODES } from 'http';
 import { UsersService } from 'src/users/users.service';
@@ -126,7 +126,6 @@ export class PollService {
     }
 
     const hasVotedOn = await this.voteService.findOneByUserAndPoll(pollToVote, user);
-    console.log(hasVotedOn);
     if (hasVotedOn) {
       throw new BadRequestException('User has already voted on this poll.');
     }

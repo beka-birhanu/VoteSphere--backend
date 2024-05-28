@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { PollOption } from './polloption';
+import { PollOption } from './pollOption';
 import { Group } from './group';
 import { Vote } from './vote';
 
