@@ -50,9 +50,19 @@ export class GroupService {
     }
   }
 
+  async getGroupName(groupID: string): Promise<{ groupName: string }> {
+    const group = await this.findOneById(groupID);
+
+    if (!group) {
+      throw new NotFoundException('Invalid group ID');
+    }
+
+    return { groupName: group.groupName };
+  }
+
   async getMembers(groupId: string): Promise<{ username: string; email: string; isAdmin: boolean }[]> {
     if (!groupId) {
-      throw new BadRequestException('Invalid group ID');
+      throw new BadRequestException('Group ID is required');
     }
 
     const group = await this.findOneById(groupId);

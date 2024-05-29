@@ -40,6 +40,22 @@ export class GroupController {
   }
 
   @Roles(['Admin', 'User'])
+  @Get(':groupId/groupName')
+  @ApiOperation({ summary: 'Get group name', description: 'Get name of a group. Requires Admin or User role.' })
+  @ApiOkResponse({
+    description: 'Returns the name of a Group',
+    schema: {
+      type: 'string',
+      properties: { groupName: { type: 'string' } },
+    },
+  })
+  @ApiResponse({ status: 404, description: 'Not Found: The provided group ID is invalid.' })
+  //
+  async getName(@Param('groupId') groupId: string): Promise<{ groupName: string }> {
+    return this.groupService.getGroupName(groupId);
+  }
+
+  @Roles(['Admin', 'User'])
   @Get(':groupId/members')
   @ApiOperation({ summary: 'Get Members', description: 'Get members of a group. Requires Admin or User role.' })
   @ApiOkResponse({
