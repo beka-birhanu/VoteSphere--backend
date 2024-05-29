@@ -109,33 +109,17 @@ docker-compose up
 
 ## For Developers Who Want to Develop Frontend
 
-To start the server, use the following command:
-
-```bash
-docker-compose down
-docker-compose up
-```
+Start the server
 
 Then visit http://localhost:9000/api in your web browser to access the backend API.
+
 ![API docs](./screenshot/api-docs.png)
 
 ## Contributing Guide
 
 Thank you for contributing to our project! Here's how you can get started:
 
-1. **Clone the Repository**: `git clone <repository_url>`
-2. **Make Your Changes**: Modify the codebase as needed, following the design pattern promoted by NestJS
-   - Modularity
-   - Dependency Injection
-   - Controllers and Services
-   - Providers
-   - Middlewares
-   - Interceptors
-   - Exception Handling
-3. **Format Your Code**: Use Prettier to format your code with the given settings in `.prettierrc`.
-4. **Test Your Changes**: Ensure they work as expected.
-5. **Commit Your Changes**: `git add .` and `git commit -m "Description of changes"`
-6. **Push Your Changes**: `git push origin <branch_name>`
-7. **Create a Pull Request (PR)**: Explain your changes and submit the PR.
-8. **Review and Merge**: I will review your PR and merge if appropriate.
-9. **Celebrate!**: Your contribution is now part of the project.
+1. **Adhere to Design Patterns**: Make necessary modifications to the codebase in accordance with the design patterns endorsed by [NestJS](https://docs.nestjs.com/).
+2. **Format Code**: Utilize Prettier to format your code according to the settings specified in `.prettierrc`.
+3. **Commit Changes**: Follow the guidelines outlined in the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification for writing commit messages.
+4. **Add Humor**: Include some well-known jokes to keep things entertaining!
