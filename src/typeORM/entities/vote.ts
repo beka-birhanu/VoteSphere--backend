@@ -9,12 +9,12 @@ export class Vote {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.votes, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.votes, { cascade: true})
   user: User;
 
-  @ManyToOne(() => Poll, (poll) => poll.votes, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Poll, (poll) => poll.votes, { cascade: true})
   poll: Poll;
 
-  @ManyToOne(() => PollOption, (pollOption) => pollOption.votes, { onDelete: 'CASCADE', eager: true })
+  @ManyToOne(() => PollOption, (pollOption) => pollOption.votes, { cascade: true, eager: true })
   pollOption: PollOption;
 }

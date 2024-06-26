@@ -31,6 +31,9 @@ export class VoteService {
   }
 
   async findOneByUserAndPoll(poll: Poll, user: User) {
-    return this.voteRepository.findOne({ where: { poll, user } });
+    const username = user.username;
+    const pollId = poll.id;
+
+    return this.voteRepository.findOne({ where: { user: { username: username }, poll: { id: pollId } } });
   }
 }

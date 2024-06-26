@@ -1,6 +1,5 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { Group } from './group';
-import { Poll } from './poll';
 import { Vote } from './vote';
 
 @Entity({ name: 'users' })
